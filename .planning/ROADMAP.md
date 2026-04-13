@@ -12,7 +12,7 @@ Six phases deliver the complete site: a project foundation and layout shell, the
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** - Next.js project scaffolded, Supabase connected, Vercel configured, database schema with RLS in place
+- [x] **Phase 1: Foundation** - Next.js project scaffolded, Supabase connected, Vercel configured, database schema with RLS in place (completed 2026-04-13)
 - [ ] **Phase 2: Public Pages** - Home snap-scroll layout, About page, and navigation shell visible and responsive
 - [ ] **Phase 3: VIN Estimate** - VIN decoder, pricing formula, and estimate result fully functional end-to-end
 - [ ] **Phase 4: Booking & Contact** - Appointment booking calendar and contact form both save to Supabase
@@ -31,14 +31,14 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. The footer displays business hours, location, and San Antonio service area on every public page
   4. A Vercel deployment URL exists where the build succeeds and environment variables are documented in `.env.example`
   5. All Supabase tables (bookings, contacts, analytics_events) exist with RLS enabled and correct insert/select policies
-**Plans:** 5 plans
+**Plans:** 5/5 plans complete
 
 Plans:
-- [ ] 01-01-PLAN.md — Scaffold Next.js 15 + Tailwind v4 brand theme + shadcn/ui init
-- [ ] 01-02-PLAN.md — Supabase SSR three-file pattern + .env.example + middleware auth guard
-- [ ] 01-03-PLAN.md — Database migration (4 tables + RLS policies) + schema push
-- [ ] 01-04-PLAN.md — Navigation shell (TopNav, Footer, Logo, route groups, placeholder pages)
-- [ ] 01-05-PLAN.md — Git + GitHub + Vercel deployment with env var configuration
+- [x] 01-01-PLAN.md — Scaffold Next.js 15 + Tailwind v4 brand theme + shadcn/ui init
+- [x] 01-02-PLAN.md — Supabase SSR three-file pattern + .env.example + middleware auth guard
+- [x] 01-03-PLAN.md — Database migration (4 tables + RLS policies) + schema push
+- [x] 01-04-PLAN.md — Navigation shell (TopNav, Footer, Logo, route groups, placeholder pages)
+- [x] 01-05-PLAN.md — Git + GitHub + Vercel deployment with env var configuration
 
 **UI hint**: yes
 
@@ -110,7 +110,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/5 | Planned | - |
+| 1. Foundation | 5/5 | Complete   | 2026-04-13 |
 | 2. Public Pages | 0/TBD | Not started | - |
 | 3. VIN Estimate | 0/TBD | Not started | - |
 | 4. Booking & Contact | 0/TBD | Not started | - |
