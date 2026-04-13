@@ -137,23 +137,75 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FDN-01..07 | TBD | Pending |
-| NAV-01..04 | TBD | Pending |
-| HOME-01..06 | TBD | Pending |
-| VIN-01..07 | TBD | Pending |
-| ABOUT-01..04 | TBD | Pending |
-| CONT-01..06 | TBD | Pending |
-| BOOK-01..07 | TBD | Pending |
-| AUTH-01..05 | TBD | Pending |
-| ADMIN-01..07 | TBD | Pending |
-| USER-01..04 | TBD | Pending |
-| ANLY-01..06 | TBD | Pending |
+| FDN-01 | Phase 1 | Pending |
+| FDN-02 | Phase 1 | Pending |
+| FDN-03 | Phase 1 | Pending |
+| FDN-04 | Phase 1 | Pending |
+| FDN-05 | Phase 1 | Pending |
+| FDN-06 | Phase 1 | Pending |
+| FDN-07 | Phase 1 | Pending |
+| NAV-01 | Phase 1 | Pending |
+| NAV-02 | Phase 1 | Pending |
+| NAV-03 | Phase 1 | Pending |
+| NAV-04 | Phase 1 | Pending |
+| HOME-01 | Phase 2 | Pending |
+| HOME-02 | Phase 2 | Pending |
+| HOME-03 | Phase 2 | Pending |
+| HOME-04 | Phase 2 | Pending |
+| HOME-05 | Phase 2 | Pending |
+| HOME-06 | Phase 2 | Pending |
+| ABOUT-01 | Phase 2 | Pending |
+| ABOUT-02 | Phase 2 | Pending |
+| ABOUT-03 | Phase 2 | Pending |
+| ABOUT-04 | Phase 2 | Pending |
+| VIN-01 | Phase 3 | Pending |
+| VIN-02 | Phase 3 | Pending |
+| VIN-03 | Phase 3 | Pending |
+| VIN-04 | Phase 3 | Pending |
+| VIN-05 | Phase 3 | Pending |
+| VIN-06 | Phase 3 | Pending |
+| VIN-07 | Phase 3 | Pending |
+| BOOK-01 | Phase 4 | Pending |
+| BOOK-02 | Phase 4 | Pending |
+| BOOK-03 | Phase 4 | Pending |
+| BOOK-04 | Phase 4 | Pending |
+| BOOK-05 | Phase 4 | Pending |
+| BOOK-06 | Phase 4 | Pending |
+| BOOK-07 | Phase 4 | Pending |
+| CONT-01 | Phase 4 | Pending |
+| CONT-02 | Phase 4 | Pending |
+| CONT-03 | Phase 4 | Pending |
+| CONT-04 | Phase 4 | Pending |
+| CONT-05 | Phase 4 | Pending |
+| CONT-06 | Phase 4 | Pending |
+| AUTH-01 | Phase 5 | Pending |
+| AUTH-02 | Phase 5 | Pending |
+| AUTH-03 | Phase 5 | Pending |
+| AUTH-04 | Phase 5 | Pending |
+| AUTH-05 | Phase 5 | Pending |
+| ADMIN-01 | Phase 5 | Pending |
+| ADMIN-02 | Phase 5 | Pending |
+| ADMIN-03 | Phase 5 | Pending |
+| ADMIN-04 | Phase 5 | Pending |
+| ADMIN-05 | Phase 5 | Pending |
+| ADMIN-06 | Phase 5 | Pending |
+| ADMIN-07 | Phase 5 | Pending |
+| USER-01 | Phase 5 | Pending |
+| USER-02 | Phase 5 | Pending |
+| USER-03 | Phase 5 | Pending |
+| USER-04 | Phase 5 | Pending |
+| ANLY-01 | Phase 6 | Pending |
+| ANLY-02 | Phase 6 | Pending |
+| ANLY-03 | Phase 6 | Pending |
+| ANLY-04 | Phase 6 | Pending |
+| ANLY-05 | Phase 6 | Pending |
+| ANLY-06 | Phase 6 | Pending |
 
 **Coverage:**
 - v1 requirements: 56 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 56 ⚠️
+- Mapped to phases: 56
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-12*
-*Last updated: 2026-04-12 after initial definition*
+*Last updated: 2026-04-12 after roadmap creation*
