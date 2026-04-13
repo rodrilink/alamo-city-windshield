@@ -31,7 +31,15 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. The footer displays business hours, location, and San Antonio service area on every public page
   4. A Vercel deployment URL exists where the build succeeds and environment variables are documented in `.env.example`
   5. All Supabase tables (bookings, contacts, analytics_events) exist with RLS enabled and correct insert/select policies
-**Plans**: TBD
+**Plans:** 5 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Scaffold Next.js 15 + Tailwind v4 brand theme + shadcn/ui init
+- [ ] 01-02-PLAN.md — Supabase SSR three-file pattern + .env.example + middleware auth guard
+- [ ] 01-03-PLAN.md — Database migration (4 tables + RLS policies) + schema push
+- [ ] 01-04-PLAN.md — Navigation shell (TopNav, Footer, Logo, route groups, placeholder pages)
+- [ ] 01-05-PLAN.md — Git + GitHub + Vercel deployment with env var configuration
+
 **UI hint**: yes
 
 ### Phase 2: Public Pages
@@ -98,11 +106,11 @@ Decimal phases appear between their surrounding integers in numeric order.
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/TBD | Not started | - |
+| 1. Foundation | 0/5 | Planned | - |
 | 2. Public Pages | 0/TBD | Not started | - |
 | 3. VIN Estimate | 0/TBD | Not started | - |
 | 4. Booking & Contact | 0/TBD | Not started | - |
