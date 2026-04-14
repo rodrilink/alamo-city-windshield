@@ -4,7 +4,14 @@
       "Bash(node __TRACKED_VAR__/.claude/get-shit-done/bin/gsd-tools.cjs commit 'docs: initialize project' --files .planning/PROJECT.md)",
       "Read(//c/Users/rodri/.claude/get-shit-done/templates/**)",
       "Bash(node __TRACKED_VAR__/.claude/get-shit-done/bin/gsd-tools.cjs commit 'docs: create roadmap \\(6 phases\\)' --files .planning/ROADMAP.md .planning/STATE.md .planning/REQUIREMENTS.md CLAUDE.md)",
-      "Bash(node __TRACKED_VAR__/.claude/get-shit-done/bin/gsd-tools.cjs roadmap get-phase 1)"
+      "Bash(node __TRACKED_VAR__/.claude/get-shit-done/bin/gsd-tools.cjs roadmap get-phase 1)",
+      "Bash(node __TRACKED_VAR__/.claude/get-shit-done/bin/gsd-tools.cjs roadmap update-plan-progress 1 01-02 completed)",
+      "Bash(node __TRACKED_VAR__/.claude/get-shit-done/bin/gsd-tools.cjs roadmap update-plan-progress 1 01-03 completed)",
+      "Bash(node __TRACKED_VAR__/.claude/get-shit-done/bin/gsd-tools.cjs roadmap update-plan-progress 1 01-04 completed)",
+      "Bash(npx tsc:*)",
+      "Bash(./node_modules/.bin/tsc --noEmit)",
+      "Bash(node ./node_modules/typescript/bin/tsc --noEmit)",
+      "Bash(npm install:*)"
     ]
   }
 }
