@@ -51,7 +51,14 @@ Plans:
   2. The VIN input field appears in the second snap section and accepts a 17-character VIN with client-side format validation
   3. A "Book Appointment" CTA appears after an estimate result is shown (estimate display is a placeholder at this phase)
   4. The About page displays the company mission, vision, service area, warranty statement, and trust signals
-**Plans**: TBD
+**Plans:** 4 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Install motion, configure Unsplash, build snap scroll shell + HeroSection
+- [ ] 02-02-PLAN.md — VIN estimate section with form validation, fake result, and Book CTA
+- [ ] 02-03-PLAN.md — Services + testimonials section with service cards grid and Contact CTA
+- [ ] 02-04-PLAN.md — About page with mission, vision, and trust signals sections
+
 **UI hint**: yes
 
 ### Phase 3: VIN Estimate
@@ -111,7 +118,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/5 | Complete   | 2026-04-13 |
-| 2. Public Pages | 0/TBD | Not started | - |
+| 2. Public Pages | 0/4 | Planned | - |
 | 3. VIN Estimate | 0/TBD | Not started | - |
 | 4. Booking & Contact | 0/TBD | Not started | - |
 | 5. Admin Backend | 0/TBD | Not started | - |
