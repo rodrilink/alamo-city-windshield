@@ -598,7 +598,7 @@ export default nextConfig
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Snap container height: `h-full` vs `h-dvh`**
    - What we know: `<main className="flex-1">` grows in the flex column. `h-full` on a child should work when parent has defined height.
@@ -645,23 +645,3 @@ export default nextConfig
 - Codebase `src/app/(public)/layout.tsx` — confirmed flex-col structure, `<main className="flex-1">`
 - Codebase `globals.css` — confirmed `--primary`, `--muted`, `--background` tokens
 - Codebase `node_modules/@base-ui/react` — confirmed Base UI v1.3.0 (not Radix)
-
-### Secondary (MEDIUM confidence)
-- andromedagalactic.com/blog/scroll-snap-sticky-header — scroll-padding-top pattern for snap + sticky nav
-- NHTSA VIN specification (via multiple sources) — `^[A-HJ-NPR-Z0-9]{17}$` regex confirmed by regex101 VIN library
-- Next.js image docs — `remotePatterns` configuration pattern for Unsplash
-
-### Tertiary (LOW confidence)
-- iOS Safari dvh gap (Apple Developer Forums 2025) — recent Safari regression with 100dvh; monitor for platform-specific workarounds
-
----
-
-## Metadata
-
-**Confidence breakdown:**
-- Standard stack: HIGH — verified via package.json and node_modules
-- Architecture: HIGH — verified against actual layout.tsx and motion.dev docs
-- Pitfalls: HIGH — most from official docs or direct codebase inspection; iOS dvh issue is MEDIUM (ongoing browser regression)
-
-**Research date:** 2026-04-14
-**Valid until:** 2026-05-14 (motion APIs are stable; Tailwind v4 utilities are stable)
