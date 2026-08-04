@@ -83,7 +83,7 @@ Plans:
   4. If the NHTSA API times out or fails, a manual entry fallback is shown instead of an error state
   5. Vehicles from 2018 or later display an ADAS calibration notice indicating the estimate includes potential calibration cost
 
-**Plans:** 1/8 plans executed
+**Plans:** 2/8 plans executed
 
 Plans:
 **Wave 1**
@@ -92,7 +92,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 03-02-PLAN.md — Vitest harness + shared vehicle/estimate type contract
+- [x] 03-02-PLAN.md — Vitest harness + shared vehicle/estimate type contract
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -167,7 +167,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/5 | Complete   | 2026-04-13 |
 | 2. Public Pages | 4/4 | Complete   | 2026-04-14 |
-| 3. VIN Estimate | 1/8 | In Progress|  |
+| 3. VIN Estimate | 2/8 | In Progress|  |
 | 4. Booking & Contact | 0/TBD | Not started | - |
 | 5. Admin Backend | 0/TBD | Not started | - |
 | 6. Analytics | 0/TBD | Not started | - |
