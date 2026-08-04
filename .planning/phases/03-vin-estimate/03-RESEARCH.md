@@ -548,10 +548,10 @@ Run with: `node --test src/lib/pricing.test.ts` (no build step; native TS execut
    - **User decision: the D-05 formula is authoritative. $995 was the typo.** `03-CONTEXT.md` D-06 corrected to `$585 – $965` with an inline correction note.
    - **Planner instruction:** implement D-05 exactly as written. Encode all six D-06 rows as hardcoded test assertions, using `$585 – $965` for the Odyssey. No undocumented adjustment term exists — do not add one.
 
-2. **Manual-entry fallback (D-17): does it share the same Route Handler or need a sibling endpoint?**
-   - What we know: D-17's two-field form (model year + vehicle type bucket) needs the same `lib/pricing.ts` computation, server-side, without ever exposing the formula.
-   - What's unclear: CONTEXT.md doesn't specify whether this is a second Route Handler (e.g. `/api/estimate/manual`) or a Server Action, given ARCHITECTURE.md's general guidance that Route Handlers are for idempotent/cacheable GETs (Pattern 5) while mutations go through Server Actions (Pattern 2) — but a manual estimate is neither a mutation nor cacheable by VIN (there's no VIN).
-   - Recommendation: A Server Action is arguably the better fit here (no caching concern, no idempotent-GET rationale applies, keeps `lib/pricing.ts` import server-side either way) — but this is a planning-level implementation choice, not a research gap; either approach satisfies D-15 and D-20 as long as `lib/pricing.ts` is never imported client-side.
+2. ~~**Manual-entry fallback (D-17): does it share the same Route Handler or need a sibling endpoint?**~~ — **RESOLVED 2026-08-04 at plan time.**
+   - What we knew: D-17's two-field form (model year + vehicle type bucket) needs the same `lib/pricing.ts` computation, server-side, without ever exposing the formula. CONTEXT.md didn't specify Route Handler vs. Server Action; this research leaned Server Action.
+   - **Planner decision: a sibling Route Handler, `GET /api/estimate?year=YYYY`.** Rationale: the manual estimate is read-only, side-effect-free, and idempotent, which matches ARCHITECTURE.md Pattern 5's actual criterion. The earlier lean toward a Server Action rested on "not cacheable by VIN," but Pattern 5 is about idempotency, not VIN-keyed caching — so the GET handler is the better fit. Implemented consistently in plans `03-06` (handler) and `03-07` (client wiring).
+   - Either approach satisfied D-15 and D-20; this was an implementation-level choice, not a research gap. Recorded here for traceability.
 
 ## Environment Availability
 
