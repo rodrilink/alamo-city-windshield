@@ -13,7 +13,7 @@ Six phases deliver the complete site: a project foundation and layout shell, the
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Next.js project scaffolded, Supabase connected, Vercel configured, database schema with RLS in place (completed 2026-04-13)
-- [ ] **Phase 2: Public Pages** - Home snap-scroll layout, About page, and navigation shell visible and responsive
+- [x] **Phase 2: Public Pages** - Home snap-scroll layout, About page, and navigation shell visible and responsive (completed 2026-04-14)
 - [ ] **Phase 3: VIN Estimate** - VIN decoder, pricing formula, and estimate result fully functional end-to-end
 - [ ] **Phase 4: Booking & Contact** - Appointment booking calendar and contact form both save to Supabase
 - [ ] **Phase 5: Admin Backend** - Admin login, protected dashboard with charts, and user management operational
@@ -51,13 +51,13 @@ Plans:
   2. The VIN input field appears in the second snap section and accepts a 17-character VIN with client-side format validation
   3. A "Book Appointment" CTA appears after an estimate result is shown (estimate display is a placeholder at this phase)
   4. The About page displays the company mission, vision, service area, warranty statement, and trust signals
-**Plans:** 4 plans
+**Plans:** 4/4 plans complete
 
 Plans:
-- [ ] 02-01-PLAN.md — Install motion, configure Unsplash, build snap scroll shell + HeroSection
-- [ ] 02-02-PLAN.md — VIN estimate section with form validation, fake result, and Book CTA
-- [ ] 02-03-PLAN.md — Services + testimonials section with service cards grid and Contact CTA
-- [ ] 02-04-PLAN.md — About page with mission, vision, and trust signals sections
+- [x] 02-01-PLAN.md — Install motion, configure Unsplash, build snap scroll shell + HeroSection
+- [x] 02-02-PLAN.md — VIN estimate section with form validation, fake result, and Book CTA
+- [x] 02-03-PLAN.md — Services + testimonials section with service cards grid and Contact CTA
+- [x] 02-04-PLAN.md — About page with mission, vision, and trust signals sections
 
 **UI hint**: yes
 
@@ -71,7 +71,17 @@ Plans:
   3. A windshield type selector (standard/acoustic/heated) appears and updates the estimate when changed
   4. If the NHTSA API times out or fails, a manual entry fallback is shown instead of an error state
   5. Vehicles from 2018 or later display an ADAS calibration notice indicating the estimate includes potential calibration cost
-**Plans**: TBD
+**Plans:** 8 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Package legitimacy gate for server-only + vitest (blocking human approval)
+- [ ] 03-02-PLAN.md — Vitest harness + shared vehicle/estimate type contract
+- [ ] 03-03-PLAN.md — Locked pricing formula (D-01..D-05) + six D-06 fixture tests
+- [ ] 03-04-PLAN.md — Service-role client, vin_cache access, NHTSA decode + 3-way classification
+- [ ] 03-05-PLAN.md — Segmented selector primitive + EstimateResult presentation component
+- [ ] 03-06-PLAN.md — Route Handlers: GET /api/vin/[vin] and GET /api/estimate
+- [ ] 03-07-PLAN.md — Manual entry fallback + EstimateSection rewired to the real lookup
+- [ ] 03-08-PLAN.md — End-to-end human verification of all 5 success criteria
 
 ### Phase 4: Booking & Contact
 **Goal**: Users can book an appointment via a visual calendar and submit contact requests, both saved reliably to Supabase with no double-booking possible
@@ -118,8 +128,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/5 | Complete   | 2026-04-13 |
-| 2. Public Pages | 0/4 | Planned | - |
-| 3. VIN Estimate | 0/TBD | Not started | - |
+| 2. Public Pages | 4/4 | Complete   | 2026-04-14 |
+| 3. VIN Estimate | 0/8 | Planned | - |
 | 4. Booking & Contact | 0/TBD | Not started | - |
 | 5. Admin Backend | 0/TBD | Not started | - |
 | 6. Analytics | 0/TBD | Not started | - |
