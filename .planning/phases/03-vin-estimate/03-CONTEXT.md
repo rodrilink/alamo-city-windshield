@@ -49,8 +49,17 @@ Covers requirements: VIN-01..VIN-07.
   | 2020 Toyota Camry (sedan) | Standard | $270 – $580 |
   | 2020 Toyota Camry (sedan) | Acoustic | $360 – $690 |
   | 2022 Ford F-150 (pickup) | Standard | $338 – $663 |
-  | 2023 Honda Odyssey (van) | Heated | $585 – $995 |
+  | 2023 Honda Odyssey (van) | Heated | $585 – $965 |
   | 2016 Chevy Silverado (pickup) | Standard | $338 – $413 |
+
+  > **Correction (2026-08-04, during Phase 3 research):** the Odyssey row originally read
+  > `$585 – $995`. Phase 3 research found this to be the only row of the six that does not
+  > reconcile with the D-05 formula, which computes `650 * 1.10 + 250 = 965`. The low end
+  > ($585) matched, confirming the $650 subtotal, so the discrepancy was isolated to the high
+  > end and consistent with a 6↔9 transposition. User confirmed **the formula is
+  > authoritative** and the table was the typo. D-05 is implemented exactly as written; all
+  > six rows above now reconcile with it. Rounding is half-up (`Math.round`), which rows 4
+  > and 6 depend on ($337.50 → $338, $412.50 → $413).
 
 ### Result Presentation
 

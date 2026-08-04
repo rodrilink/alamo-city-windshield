@@ -28,7 +28,7 @@
   | 2020 Toyota Camry (sedan) | Standard | $270 – $580 |
   | 2020 Toyota Camry (sedan) | Acoustic | $360 – $690 |
   | 2022 Ford F-150 (pickup) | Standard | $338 – $663 |
-  | 2023 Honda Odyssey (van) | Heated | $585 – $995 |
+  | 2023 Honda Odyssey (van) | Heated | $585 – $965 | *(was $995 — corrected, see Open Question 1)*
   | 2016 Chevy Silverado (pickup) | Standard | $338 – $413 |
 
 **Result Presentation**
@@ -497,10 +497,10 @@ high = round(subtotal * 1.10) + (modelYear >= 2018 ? 250 : 0)
 2. Camry 2020, sedan, standard:   subtotal=300           low=270  high=330+250=580     -> $270-$580  MATCH
 3. Camry 2020, sedan, acoustic:   subtotal=400           low=360  high=440+250=690     -> $360-$690  MATCH
 4. F-150 2022, pickup, standard:  subtotal=375  low=round(337.5)=338  high=round(412.5)+250=413+250=663  -> $338-$663  MATCH
-5. Odyssey 2023, van, heated:     subtotal=650           low=585  high=715+250=965     -> table says $995  MISMATCH ($30 off)
+5. Odyssey 2023, van, heated:     subtotal=650           low=585  high=715+250=965     -> $585-$965  MATCH (table corrected from $995)
 6. Silverado 2016, pickup, std:   subtotal=375  low=round(337.5)=338  high=round(412.5)=413 (no ADAS, pre-2018)  -> $338-$413  MATCH
 ```
-5 of 6 fixtures reconcile exactly with the LOCKED D-05 formula, including the two rows requiring `Math.round()` half-up behavior. This gives HIGH confidence the formula transcription is correct and row 5's **$995 is very likely a transposition typo for $965** (only the tens digit differs — 9↔6). See Open Questions.
+**RESOLVED 2026-08-04 — all 6 fixtures now reconcile exactly** with the LOCKED D-05 formula, including the two rows requiring `Math.round()` half-up behavior. Row 5's `$995` was confirmed by the user to be a transposition typo for `$965`; the formula is authoritative and `03-CONTEXT.md` D-06 has been corrected. All six rows above are safe to encode as hardcoded test assertions.
 
 ### Minimal `node --test` fixture check (zero new dependencies)
 
@@ -536,17 +536,17 @@ Run with: `node --test src/lib/pricing.test.ts` (no build step; native TS execut
 | # | Claim | Section | Risk if Wrong |
 |---|-------|---------|---------------|
 | A1 | `@shaggytools/nhtsa-api-wrapper` package name/version (3.0.4) — discovered originally via STACK.md/training data, registry-confirmed via `npm view` this session but not via an official docs page or Context7 | Standard Stack, Alternatives Considered | Low — this phase's recommendation is to NOT install it, so the risk is purely informational (if the planner decides to use it anyway, re-verify via its own README before adding) |
-| A2 | The 2023 Honda Odyssey (Heated) $995 high-end figure in D-06 is a typo for $965 | Code Examples §Pricing Formula Verification, Open Questions | Medium — if the table is actually correct and the *formula* has an undocumented adjustment (e.g., van-specific ADAS scaling), building a test fixture off the wrong assumption would either wrongly "fix" a correct formula or wrongly bake in a bug. Needs explicit user confirmation before the planner encodes a test fixture. |
+| A2 | ~~The 2023 Honda Odyssey (Heated) $995 high-end figure in D-06 is a typo for $965~~ — **NO LONGER AN ASSUMPTION.** User confirmed 2026-08-04 that the D-05 formula is authoritative and $995 was the typo. `03-CONTEXT.md` D-06 corrected to `$585 – $965`. Encode all six fixtures as-is. | Code Examples §Pricing Formula Verification | None — resolved by user decision, not inference. |
 | A3 | Accessibility guidance (radiogroup semantics for the two selectors, `aria-live="polite"` on the price display) follows general WAI-ARIA Authoring Practices conventions | Security/Accessibility notes below | Low — standard, uncontroversial web accessibility practice; not verified against a specific WAI-ARIA APG page fetch this session |
 
 **If this table is empty:** N/A — see above.
 
 ## Open Questions
 
-1. **Does the 2023 Honda Odyssey (Heated) fixture's $995 high-end reconcile with the LOCKED D-05 formula?**
-   - What we know: Applying `subtotal = 300 + 150(van) + 200(heated) = 650; high = 650*1.10 + 250 = 965` for every other row in the table produces an exact match (5 of 6 rows, including two requiring half-up rounding). Only this one row is off, by exactly $30 — and $965 vs. $995 is a single-digit transposition (6↔9), which is a very plausible typo.
-   - What's unclear: Whether the table or the formula is the error. CONTEXT.md marks both as user-reviewed and LOCKED, and explicitly says "the user reviewed the D-06 worked examples explicitly and confirmed they match what the business would quote by phone" — including specifically calling out the Camry row, not the Odyssey row.
-   - Recommendation: Flag this to the user (or via `discuss-phase`/a `checkpoint:human-verify`) before the planner writes it as a hardcoded test assertion. Do not silently pick one value — this research explicitly should not re-derive locked pricing values, and this is exactly that kind of decision. If unresolved by plan time, the safest path is to implement D-05 exactly as written (it's unambiguous and internally consistent) and treat the $995 in the table as needing a follow-up correction, since 5/6 independent data points corroborate the formula over the table.
+1. ~~**Does the 2023 Honda Odyssey (Heated) fixture's $995 high-end reconcile with the LOCKED D-05 formula?**~~ — **RESOLVED 2026-08-04.**
+   - Raised to the user during plan-phase orchestration. Evidence presented: the low end ($585) reconciles, confirming the $650 subtotal, so the discrepancy was isolated to the high end; 5 of 6 rows match the formula exactly; $965 → $995 is a single-digit 6↔9 transposition.
+   - **User decision: the D-05 formula is authoritative. $995 was the typo.** `03-CONTEXT.md` D-06 corrected to `$585 – $965` with an inline correction note.
+   - **Planner instruction:** implement D-05 exactly as written. Encode all six D-06 rows as hardcoded test assertions, using `$585 – $965` for the Odyssey. No undocumented adjustment term exists — do not add one.
 
 2. **Manual-entry fallback (D-17): does it share the same Route Handler or need a sibling endpoint?**
    - What we know: D-17's two-field form (model year + vehicle type bucket) needs the same `lib/pricing.ts` computation, server-side, without ever exposing the formula.
