@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Next.js project scaffolded, Supabase connected, Vercel configured, database schema with RLS in place (completed 2026-04-13)
 - [x] **Phase 2: Public Pages** - Home snap-scroll layout, About page, and navigation shell visible and responsive (completed 2026-04-14)
-- [ ] **Phase 3: VIN Estimate** - VIN decoder, pricing formula, and estimate result fully functional end-to-end
+- [x] **Phase 3: VIN Estimate** - VIN decoder, pricing formula, and estimate result fully functional end-to-end (completed 2026-08-05)
 - [ ] **Phase 4: Booking & Contact** - Appointment booking calendar and contact form both save to Supabase
 - [ ] **Phase 5: Admin Backend** - Admin login, protected dashboard with charts, and user management operational
 - [ ] **Phase 6: Analytics** - Event tracking wired across all user actions; admin charts powered by real data
