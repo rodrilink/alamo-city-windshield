@@ -45,3 +45,10 @@ next-env.d.ts
 # Supabase
 supabase/.temp/
 supabase/.branches/
+
+# Claude
+# Agent worktree scratch. Note there is NO leading dot on `worktrees` —
+# `.claude/.worktrees/` matches nothing. 25 files were accidentally
+# committed under the real path in 2a17aa7 before this rule was corrected.
+# Keep `.claude/settings.json` and `settings.local.json` tracked.
+.claude/worktrees/
