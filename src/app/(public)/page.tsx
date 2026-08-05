@@ -20,9 +20,18 @@ export default function HomePage() {
         <HeroSection scrollRef={scrollRef} />
         <EstimateSection scrollRef={scrollRef} />
         <ServicesSection scrollRef={scrollRef} />
-        <div className="snap-start snap-always">
+        {/*
+          `snap-end`, not `snap-start`. As the LAST child of a `snap-mandatory`
+          scroller, a stop shorter than the viewport cannot satisfy `snap-start`:
+          the scroller can't scroll past its content end, so max scroll would
+          leave the Footer's top edge partway down with the tail of
+          ServicesSection above it. `snap-end` aligns the bottom edge to the
+          scrollport bottom — exactly where max scroll lands. No `overflow-y-auto`
+          here, so there is no inner scroller for the wheel to capture.
+        */}
+        <section className="snap-end snap-always shrink-0">
           <Footer />
-        </div>
+        </section>
       </div>
     </div>
   )
