@@ -1,9 +1,9 @@
 ---
-status: partial
+status: diagnosed
 phase: 03-vin-estimate
 source: [03-01-SUMMARY.md, 03-02-SUMMARY.md, 03-03-SUMMARY.md, 03-04-SUMMARY.md, 03-05-SUMMARY.md, 03-06-SUMMARY.md, 03-07-SUMMARY.md]
 started: 2026-08-05T03:40:00Z
-updated: 2026-08-05T04:35:00Z
+updated: 2026-08-05T04:50:00Z
 ---
 
 ## Current Test
@@ -101,7 +101,15 @@ blocked: 1
   severity: major
   test: 10
   scope: "Range updates correctly ($405 - $495); only the headline label is stale. Selector state and pricing lookup are wired; the headline is not reading the same selected type."
-  root_cause: ""
-  artifacts: []
-  missing: []
+  root_cause: "EstimateResult receives `headline` as a precomputed string prop while `sizeBucket` is separate live state. Pricing reads the live state (`estimates[sizeBucket][glassType]`, EstimateResult.tsx:51) so it reprices on selector change, but `headline` (EstimateResult.tsx:21,56) is a frozen string built once by the caller. On the manual path, EstimateSection.tsx:254 builds it from `chosenBucket` — the value captured at submit time — so the label stays pinned to the originally submitted type while the selector and price move on. The decoded-VIN path (EstimateSection.tsx:81,99) is correctly unaffected: a real make/model must NOT change when the user corrects the size bucket."
+  artifacts:
+    - path: "src/components/home/EstimateResult.tsx"
+      issue: "`headline` is a precomputed string prop (line 21, rendered line 56) that cannot track the component's own live `sizeBucket` state (line 45) which drives pricing (line 51)."
+    - path: "src/components/home/EstimateSection.tsx"
+      issue: "Line 254 freezes the manual-path headline from `chosenBucket` at submit time; it never recomputes when the vehicle-type selector changes."
+  missing:
+    - "On the manual-entry path only, derive the displayed vehicle-type label from the same live sizeBucket state that drives pricing, so label and price can never disagree."
+    - "Leave the decoded-VIN path's headline as the literal decoded make/model — it must NOT follow the size-bucket selector."
+    - "Add a regression test asserting that changing sizeBucket on a manual result updates both the price range AND the rendered vehicle label together."
   debug_session: ""
+  diagnosed_by: "orchestrator direct source inspection (narrow, well-localized state bug; no debug agent spawned)"
