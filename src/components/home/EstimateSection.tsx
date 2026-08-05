@@ -161,7 +161,13 @@ export function EstimateSection({ scrollRef }: EstimateSectionProps) {
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
-          viewport={{ root: scrollRef, once: true, amount: 0.3 }}
+          // `amount: 'some'`, not a 0.3 fraction. With the inner scroller above,
+          // the card can be TALLER than a short viewport, so a 30%-visible
+          // threshold may never be satisfiable — and `once: true` makes a miss
+          // permanent, stranding the card at opacity 0 (invisible). 'some' fires
+          // as soon as any part intersects, which is always reachable at any
+          // card height. No visual difference where 0.3 already fired.
+          viewport={{ root: scrollRef, once: true, amount: 'some' }}
           className="w-full max-w-md mx-auto px-4 py-6"
         >
           <Card>
