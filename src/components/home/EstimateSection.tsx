@@ -168,7 +168,15 @@ export function EstimateSection({ scrollRef }: EstimateSectionProps) {
           // as soon as any part intersects, which is always reachable at any
           // card height. No visual difference where 0.3 already fired.
           viewport={{ root: scrollRef, once: true, amount: 'some' }}
-          className="w-full max-w-md mx-auto px-4 py-6"
+          // `pt-20` (80px), not `py-6`: TopNav is `absolute top-0` on the home
+          // route (quick task 260805-i19) so it reserves NO vertical space, and
+          // its inner bar is `h-16` (64px). With only 24px of top padding the
+          // card's first line — the "Get Your Free Estimate" heading — scrolls
+          // up underneath the nav on short viewports. 80px clears the 64px nav
+          // with a 16px gap so the heading is not flush to its edge. This
+          // section renders only on `/`, so the padding cannot affect /about
+          // or /contact, where the nav is in normal flow.
+          className="w-full max-w-md mx-auto px-4 pt-20 pb-6"
         >
           <Card>
             <CardHeader>
