@@ -1,14 +1,14 @@
 ---
-status: diagnosed
+status: complete
 phase: 03-vin-estimate
 source: [03-01-SUMMARY.md, 03-02-SUMMARY.md, 03-03-SUMMARY.md, 03-04-SUMMARY.md, 03-05-SUMMARY.md, 03-06-SUMMARY.md, 03-07-SUMMARY.md]
 started: 2026-08-05T03:40:00Z
-updated: 2026-08-05T19:35:00Z
+updated: 2026-08-05T21:00:00Z
 ---
 
 ## Current Test
 
-[testing complete -- 1 gap outstanding (short-viewport card clipping), 1 blocked (vin_cache, needs live Supabase)]
+[testing complete -- all gaps resolved; 1 test remains blocked (test 15, vin_cache, needs a live Supabase project)]
 
 <!-- previous checkpoint retained for reference
 number: 12
@@ -79,10 +79,10 @@ result: pass
 
 ### 14. Mobile Viewport and Snap Scrolling Intact
 expected: At a 375x667 device viewport, repeat tests 1, 2, 3, 7 and 9. For each the card fits within the viewport without the page scrolling inside the section, and swiping still snaps cleanly between hero, estimate, and services sections in both directions. Both selectors are tappable and the three vehicle-type labels are not truncated. (plan steps 18-19)
-result: issue
-reported: "with that viewport after click on \"Get Estimate\" and I'm on result page, I cannot see the texts \"Get your free estimate\" and \"2015 Car\", what I can see is \"$270 - $330\""
-severity: major
-scope_note: 'Short-viewport card clipping. On the manual-entry result the top of the card is clipped, so the section heading and vehicle headline are unreachable and the price range is the first visible element. User measured the threshold: all elements visible at 824px height, clipped at 667px. Snap scrolling itself was verified WORKING at this viewport for all four stops including hero->estimate, estimate->services and services->footer (an initial services->footer snap failure report was retracted by the user - the sensation of normal scrolling was ServicesSection own overflow-y-auto inner scroll, which is pre-existing). Desktop tests 1-13 all passed.'
+result: pass
+retested: 2026-08-05T21:00:00Z
+originally_reported: "with that viewport after click on \"Get Estimate\" and I'm on result page, I cannot see the texts \"Get your free estimate\" and \"2015 Car\", what I can see is \"$270 - $330\""
+note: "Fixed across three commits and re-verified in-browser by the user at 375x667 and desktop. (1) 2be9a5e/781704a added a max-h-dvh overflow-y-auto overscroll-contain inner wrapper so a card taller than the viewport scrolls instead of clipping, while the section keeps relative overflow-hidden h-dvh so the absolute inset-0 backdrop layers are undisturbed. (2) 0c697f5 changed the entrance animation threshold from amount 0.3 to amount some, because a taller-than-viewport card may never satisfy a 30% threshold and once:true would have stranded it at opacity 0. (3) b31e578 changed the card padding from py-6 to pt-20 pb-6 to clear the h-16 overlay nav, which was covering the heading. A separate stale-dev-server issue made the page briefly render unstyled (the stylesheet 404d after .next was deleted under a running server); resolved by restarting with a clean cache, not a code change."
 
 ### 15. VIN Cache Row Written for Valid VIN Only
 expected: In the Supabase dashboard, the `vin_cache` table has a row for `1FTFW1E85NFA12345` and NO row for `ZZZZZZZZZZZZZZZZZ`. Failed lookups are never cached. (VIN-03, D-21, plan step 20)
@@ -93,8 +93,8 @@ reason: "No Supabase project exists and no .env.local is present — only .env.e
 ## Summary
 
 total: 15
-passed: 13
-issues: 1
+passed: 14
+issues: 0
 pending: 0
 skipped: 0
 blocked: 1
@@ -123,7 +123,7 @@ blocked: 1
   diagnosed_by: "orchestrator direct source inspection (narrow, well-localized state bug; no debug agent spawned)"
 
 - truth: "At 375x667 the estimate result card fits the viewport with its heading and vehicle headline visible, without the page scrolling inside the snap section"
-  status: failed
+  status: resolved
   reason: "User reported: cannot see 'Get your free estimate' or '2015 Car' on the manual result at 375x667; the price range is the first visible element"
   severity: major
   test: 14
@@ -138,4 +138,6 @@ blocked: 1
     - "Keep the desktop appearance unchanged (the card is comfortably centred there today)."
   debug_session: ""
   diagnosed_by: "orchestrator direct source inspection"
+  fixed_in: "2be9a5e (inner scroll wrapper, plan 03-10), 0c697f5 (animation threshold hardening), b31e578 (overlay-nav clearance)"
+  verified_by: "user in-browser at 375x667 and desktop, 2026-08-05 -- approved"
 
