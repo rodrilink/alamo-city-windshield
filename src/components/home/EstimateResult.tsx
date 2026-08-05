@@ -19,6 +19,15 @@ import { GLASS_TYPES, SIZE_BUCKETS, type EstimateMatrix, type GlassType, type Si
 
 interface EstimateResultProps {
   headline: string
+  /**
+   * True only on the D-20 manual-entry path, where the vehicle-type portion of
+   * the headline is synthesized from the user's selection rather than decoded
+   * from a VIN. When true, `headline` carries the model year alone and the
+   * bucket label is appended from live state below. Both decoded paths pass
+   * false — a real make/model must never track the selector, including D-19
+   * where the selector only corrects the price.
+   */
+  headlineFollowsSizeBucket: boolean
   estimates: EstimateMatrix
   adasApplies: boolean
   glassType: GlassType
@@ -38,6 +47,7 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
 
 export function EstimateResult({
   headline,
+  headlineFollowsSizeBucket,
   estimates,
   adasApplies,
   glassType,
@@ -49,11 +59,16 @@ export function EstimateResult({
   onReset,
 }: EstimateResultProps) {
   const activeVariant = estimates[sizeBucket][glassType]
+  // Derived from the SAME `sizeBucket` read as `activeVariant` above, so the
+  // label and the price can never disagree (UAT test 10 regression).
+  const displayHeadline = headlineFollowsSizeBucket
+    ? `${headline} ${ESTIMATE_COPY.sizeLabels[sizeBucket]}`
+    : headline
 
   return (
     <div className="space-y-3">
       {/* 1. Headline */}
-      <p className="font-semibold text-foreground">{headline}</p>
+      <p className="font-semibold text-foreground">{displayHeadline}</p>
 
       {/* 2. Price range */}
       <p aria-live="polite" className="text-2xl font-bold text-foreground">

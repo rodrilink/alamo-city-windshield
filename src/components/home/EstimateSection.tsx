@@ -26,6 +26,8 @@ type EstimateViewState =
   | {
       kind: 'result'
       headline: string
+      /** True only on the D-20 manual path; see EstimateResultProps. */
+      headlineFollowsSizeBucket: boolean
       estimates: EstimateMatrix
       adasApplies: boolean
       sizeBucketEditable: boolean
@@ -79,6 +81,7 @@ export function EstimateSection({ scrollRef }: EstimateSectionProps) {
           setView({
             kind: 'result',
             headline: `${data.vehicle.modelYear} ${data.vehicle.make} ${data.vehicle.model}`,
+            headlineFollowsSizeBucket: false,
             estimates: data.estimates,
             adasApplies: data.adasApplies,
             sizeBucketEditable: false,
@@ -96,7 +99,10 @@ export function EstimateSection({ scrollRef }: EstimateSectionProps) {
           setSizeBucket('car')
           setView({
             kind: 'result',
+            // D-19: the make/model IS known — the selector only corrects the
+            // price, so the identity string must NOT follow it.
             headline: `${data.vehicle.modelYear} ${data.vehicle.make} ${data.vehicle.model}`,
+            headlineFollowsSizeBucket: false,
             estimates: data.estimates,
             adasApplies: data.adasApplies,
             sizeBucketEditable: true,
@@ -251,7 +257,10 @@ export function EstimateSection({ scrollRef }: EstimateSectionProps) {
                       setSizeBucket(chosenBucket)
                       setView({
                         kind: 'result',
-                        headline: `${modelYear} ${ESTIMATE_COPY.sizeLabels[chosenBucket]}`,
+                        // Year only — EstimateResult appends the bucket label
+                        // from live state so it tracks the selector (D-20).
+                        headline: String(modelYear),
+                        headlineFollowsSizeBucket: true,
                         estimates,
                         adasApplies,
                         sizeBucketEditable: true,
@@ -272,6 +281,7 @@ export function EstimateSection({ scrollRef }: EstimateSectionProps) {
                 >
                   <EstimateResult
                     headline={view.headline}
+                    headlineFollowsSizeBucket={view.headlineFollowsSizeBucket}
                     estimates={view.estimates}
                     adasApplies={view.adasApplies}
                     glassType={glassType}
