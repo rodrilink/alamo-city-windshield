@@ -83,7 +83,7 @@ Plans:
   4. If the NHTSA API times out or fails, a manual entry fallback is shown instead of an error state
   5. Vehicles from 2018 or later display an ADAS calibration notice indicating the estimate includes potential calibration cost
 
-**Plans:** 2/8 plans executed
+**Plans:** 5/8 plans executed
 
 Plans:
 **Wave 1**
@@ -96,9 +96,9 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 03-03-PLAN.md — Locked pricing formula (D-01..D-05) + six D-06 fixture tests
-- [ ] 03-04-PLAN.md — Service-role client, vin_cache access, NHTSA decode + 3-way classification
-- [ ] 03-05-PLAN.md — Segmented selector primitive + EstimateResult presentation component
+- [x] 03-03-PLAN.md — Locked pricing formula (D-01..D-05) + six D-06 fixture tests
+- [x] 03-04-PLAN.md — Service-role client, vin_cache access, NHTSA decode + 3-way classification
+- [x] 03-05-PLAN.md — Segmented selector primitive + EstimateResult presentation component
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -167,7 +167,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/5 | Complete   | 2026-04-13 |
 | 2. Public Pages | 4/4 | Complete   | 2026-04-14 |
-| 3. VIN Estimate | 2/8 | In Progress|  |
+| 3. VIN Estimate | 5/8 | In Progress|  |
 | 4. Booking & Contact | 0/TBD | Not started | - |
 | 5. Admin Backend | 0/TBD | Not started | - |
 | 6. Analytics | 0/TBD | Not started | - |
