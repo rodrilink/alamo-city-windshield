@@ -75,7 +75,8 @@ None yet.
 
 - Phase 03 UAT (`03-UAT.md`) is `status: diagnosed` — 10 passed, 1 issue (fixed in `c3eb37f`, awaiting user re-test), 4 pending (tests 12-14), 1 blocked (test 15, `vin_cache`, needs a live Supabase project).
 - No Supabase project and no `.env.local` exist. This blocks `vin_cache` verification in Phase 03 and will block Phase 04 (booking writes to that DB). Same root cause as the 4 outstanding Phase 01 items.
-- Stale dev servers hold Windows file locks on `.claude/worktrees/`: port 3000 returns 500 and port 3010 was started by an executor. Three stale worktrees remain (`agent-a17ca78d`, `agent-a5c9189c`, `agent-a98f3e38`) and their build output makes repo-wide `npm run lint` report ~17k false problems — scope lint to `npx eslint src --ext .ts,.tsx`.
+- ~~Stale dev servers / worktrees polluting lint~~ **RESOLVED 2026-08-05.** Killed 3 orphaned Next.js dev servers (ports 3000/3001/3010) and removed all 6 residual worktree directories. Repo-wide `npm run lint` now exits 0 (the ~17k "problems" were stale worktree build output). Dev server is now on the canonical **port 3000**.
+- Three orphaned branches remain: `worktree-agent-a17ca78d803571f55`, `worktree-agent-a5c9189c6c6eacb4b`, `worktree-agent-a98f3e38c59ae673e`. The latter two carry commits not on master, but they are superseded duplicate attempts at plans 03-03 and 03-04 — every deliverable (`pricing.ts`, `pricing.test.ts`, `vin.ts`, `vin.test.ts`, `vin-cache.ts`, `supabase/admin.ts`) and both SUMMARY files are confirmed present on master. Left in place rather than force-deleted; safe to `git branch -D` when convenient.
 - `workflow.auto_advance` was set to `false` on 2026-08-05 to keep a run scoped to Phase 03. Restore to `true` if chained execution is wanted again.
 
 ### Quick Tasks Completed
