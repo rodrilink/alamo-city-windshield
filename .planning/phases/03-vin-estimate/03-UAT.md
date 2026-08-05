@@ -3,7 +3,7 @@ status: diagnosed
 phase: 03-vin-estimate
 source: [03-01-SUMMARY.md, 03-02-SUMMARY.md, 03-03-SUMMARY.md, 03-04-SUMMARY.md, 03-05-SUMMARY.md, 03-06-SUMMARY.md, 03-07-SUMMARY.md]
 started: 2026-08-05T03:40:00Z
-updated: 2026-08-05T05:10:00Z
+updated: 2026-08-05T19:05:00Z
 ---
 
 ## Current Test
@@ -68,15 +68,18 @@ result: pass
 
 ### 12. Disclaimer and CTA
 expected: On any result, a muted one-line disclaimer under the CTA states this is an estimate rather than a final quote, that pricing is confirmed on seeing the vehicle, and shows the phone number `(210) 555-0100`. The "Book Appointment" button is present and navigates to `/contact`. (D-11, plan steps 15-16)
-result: [pending]
+result: pass
 
 ### 13. Phase 2 Placeholder Fully Gone
 expected: The text "Estimates launching soon" appears nowhere, and no result ever shows "2024 Toyota Camry" or "$250 - $400". (D-12, plan step 17)
-result: [pending]
+result: pass
 
 ### 14. Mobile Viewport and Snap Scrolling Intact
 expected: At a 375x667 device viewport, repeat tests 1, 2, 3, 7 and 9. For each the card fits within the viewport without the page scrolling inside the section, and swiping still snaps cleanly between hero, estimate, and services sections in both directions. Both selectors are tappable and the three vehicle-type labels are not truncated. (plan steps 18-19)
-result: [pending]
+result: issue
+reported: "with that viewport after click on \"Get Estimate\" and I'm on result page, I cannot see the texts \"Get your free estimate\" and \"2015 Car\", what I can see is \"$270 - $330\""
+severity: major
+scope_note: '375x667 only. On the manual-entry result the top of the card is clipped: the section heading and the vehicle headline are cut off above the visible area, so the price range is the first visible element. Desktop was unaffected - tests 1-13 all passed.'
 
 ### 15. VIN Cache Row Written for Valid VIN Only
 expected: In the Supabase dashboard, the `vin_cache` table has a row for `1FTFW1E85NFA12345` and NO row for `ZZZZZZZZZZZZZZZZZ`. Failed lookups are never cached. (VIN-03, D-21, plan step 20)
@@ -87,9 +90,9 @@ reason: "No Supabase project exists and no .env.local is present — only .env.e
 ## Summary
 
 total: 15
-passed: 10
-issues: 1
-pending: 4
+passed: 12
+issues: 2
+pending: 1
 skipped: 0
 blocked: 1
 
@@ -115,3 +118,20 @@ blocked: 1
   fixed_in: "c3eb37f fix(03): derive manual-path vehicle label from live sizeBucket state"
   fix_status: "code fix applied and verified (tsc 0, lint 0, 33/33 tests). Awaiting user browser re-test of UAT test 10. Regression test deferred to 03-09-PLAN.md (needs component-test dependencies)."
   diagnosed_by: "orchestrator direct source inspection (narrow, well-localized state bug; no debug agent spawned)"
+
+- truth: "At 375x667 the estimate result card fits the viewport with its heading and vehicle headline visible, without the page scrolling inside the snap section"
+  status: failed
+  reason: "User reported: cannot see 'Get your free estimate' or '2015 Car' on the manual result at 375x667; the price range is the first visible element"
+  severity: major
+  test: 14
+  scope: "Mobile only (375x667). Desktop unaffected. Top of the result card is clipped above the visible area."
+  root_cause: "EstimateSection.tsx:139 is `snap-start snap-always h-dvh relative overflow-hidden flex items-center justify-center`. The result-state card is far taller than the form state (heading, headline, price, 4 breakdown rows, glass selector + hint, vehicle-type selector, basis note, CTA, disclaimer, reset) and exceeds 667px at 375px wide. Because the card is vertically centred (`items-center`) inside an `overflow-hidden` box, the overflow is split evenly above AND below the viewport, and there is no scroller in that section - so the clipped top (section heading + vehicle headline) is unreachable. Pre-existing consequence of overflow-hidden + items-center; the overlay TopNav from quick task 260805-i19 made it marginally worse by freeing the 64px the nav previously occupied, but is not the cause."
+  artifacts:
+    - path: "src/components/home/EstimateSection.tsx"
+      issue: "Line 139: `h-dvh overflow-hidden flex items-center justify-center` clips a result card taller than the viewport at both ends, with no scroller to reach the hidden top."
+  missing:
+    - "Let the estimate section scroll internally when its card exceeds the viewport, OR align the card to the top instead of centring it, so the heading and headline are never clipped."
+    - "Preserve the h-dvh snap-start snap-always behaviour and the scrollRef IntersectionObserver root - do not break the snap feel or the whileInView animations."
+    - "Keep the desktop appearance unchanged (the card is comfortably centred there today)."
+  debug_session: ""
+  diagnosed_by: "orchestrator direct source inspection"
