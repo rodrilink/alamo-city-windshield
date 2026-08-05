@@ -3,11 +3,14 @@ status: diagnosed
 phase: 03-vin-estimate
 source: [03-01-SUMMARY.md, 03-02-SUMMARY.md, 03-03-SUMMARY.md, 03-04-SUMMARY.md, 03-05-SUMMARY.md, 03-06-SUMMARY.md, 03-07-SUMMARY.md]
 started: 2026-08-05T03:40:00Z
-updated: 2026-08-05T19:05:00Z
+updated: 2026-08-05T19:35:00Z
 ---
 
 ## Current Test
 
+[testing complete -- 1 gap outstanding (short-viewport card clipping), 1 blocked (vin_cache, needs live Supabase)]
+
+<!-- previous checkpoint retained for reference
 number: 12
 name: Disclaimer and CTA
 expected: |
@@ -15,7 +18,8 @@ expected: |
   estimate rather than a final quote, that pricing is confirmed on seeing the
   vehicle, and shows the phone number (210) 555-0100. The Book Appointment
   button is present and navigates to /contact.
-awaiting: user response -- session paused here (user switched to /gsd-progress)
+awaiting: (resolved -- test 12 passed)
+-->
 
 ## Tests
 
@@ -57,10 +61,9 @@ result: pass
 
 ### 10. Vehicle-Type Selector Live on Manual Result
 expected: The vehicle type is still a live selector on that result. Switching it to Van changes the range to $405 - $495 and the headline to "2015 Van". (D-19 pattern, plan steps 12 and 14)
-result: issue
-reported: "I switch to van but headline still says 2015 Car"
-severity: major
-scope_note: "Confirmed with user: the price range DOES update correctly to $405 - $495 on switching to Van. Only the headline vehicle label is stale. The selector and pricing wiring work; the label is not deriving from the same selected-type state."
+result: pass
+retested: 2026-08-05T19:20:00Z
+note: "Originally failed (headline stuck on '2015 Car' while the range updated). Fixed in c3eb37f by deriving the label from the same live sizeBucket state that drives pricing. User re-tested in-browser at 824px height and confirmed the headline now follows the selector to '2015 Van' together with the $405 - $495 range."
 
 ### 11. Offline Produces Manual Form, Not an Error
 expected: In DevTools Network set throttling to Offline. Return to the VIN form, enter `1FTFW1E85NFA12345`, submit. The manual entry form appears — not an error message, not a red alert, not a blank card. No stack trace, HTTP status, or raw error string is shown. Set throttling back to No throttling afterward. (ROADMAP criterion 4, VIN-02, D-17, T-03-08, plan step 13)
@@ -79,7 +82,7 @@ expected: At a 375x667 device viewport, repeat tests 1, 2, 3, 7 and 9. For each 
 result: issue
 reported: "with that viewport after click on \"Get Estimate\" and I'm on result page, I cannot see the texts \"Get your free estimate\" and \"2015 Car\", what I can see is \"$270 - $330\""
 severity: major
-scope_note: '375x667 only. On the manual-entry result the top of the card is clipped: the section heading and the vehicle headline are cut off above the visible area, so the price range is the first visible element. Desktop was unaffected - tests 1-13 all passed.'
+scope_note: 'Short-viewport card clipping. On the manual-entry result the top of the card is clipped, so the section heading and vehicle headline are unreachable and the price range is the first visible element. User measured the threshold: all elements visible at 824px height, clipped at 667px. Snap scrolling itself was verified WORKING at this viewport for all four stops including hero->estimate, estimate->services and services->footer (an initial services->footer snap failure report was retracted by the user - the sensation of normal scrolling was ServicesSection own overflow-y-auto inner scroll, which is pre-existing). Desktop tests 1-13 all passed.'
 
 ### 15. VIN Cache Row Written for Valid VIN Only
 expected: In the Supabase dashboard, the `vin_cache` table has a row for `1FTFW1E85NFA12345` and NO row for `ZZZZZZZZZZZZZZZZZ`. Failed lookups are never cached. (VIN-03, D-21, plan step 20)
@@ -90,16 +93,16 @@ reason: "No Supabase project exists and no .env.local is present — only .env.e
 ## Summary
 
 total: 15
-passed: 12
-issues: 2
-pending: 1
+passed: 13
+issues: 1
+pending: 0
 skipped: 0
 blocked: 1
 
 ## Gaps
 
 - truth: "Switching the vehicle-type selector on a manual-entry result updates both the price range and the headline vehicle label"
-  status: failed
+  status: resolved
   reason: "User reported: I switch to van but headline still says 2015 Car"
   severity: major
   test: 10
@@ -124,7 +127,7 @@ blocked: 1
   reason: "User reported: cannot see 'Get your free estimate' or '2015 Car' on the manual result at 375x667; the price range is the first visible element"
   severity: major
   test: 14
-  scope: "Mobile only (375x667). Desktop unaffected. Top of the result card is clipped above the visible area."
+  scope: "Short viewports only. User measured the threshold in-browser: at 824px height every element is visible (heading through 'Estimate another vehicle'); at 667px the card overflows and is clipped at both ends. Pure height threshold, consistent with overflow-hidden + items-center. Width is not the factor; desktop unaffected."
   root_cause: "EstimateSection.tsx:139 is `snap-start snap-always h-dvh relative overflow-hidden flex items-center justify-center`. The result-state card is far taller than the form state (heading, headline, price, 4 breakdown rows, glass selector + hint, vehicle-type selector, basis note, CTA, disclaimer, reset) and exceeds 667px at 375px wide. Because the card is vertically centred (`items-center`) inside an `overflow-hidden` box, the overflow is split evenly above AND below the viewport, and there is no scroller in that section - so the clipped top (section heading + vehicle headline) is unreachable. Pre-existing consequence of overflow-hidden + items-center; the overlay TopNav from quick task 260805-i19 made it marginally worse by freeing the 64px the nav previously occupied, but is not the cause."
   artifacts:
     - path: "src/components/home/EstimateSection.tsx"
@@ -135,3 +138,4 @@ blocked: 1
     - "Keep the desktop appearance unchanged (the card is comfortably centred there today)."
   debug_session: ""
   diagnosed_by: "orchestrator direct source inspection"
+
