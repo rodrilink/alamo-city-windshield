@@ -148,156 +148,165 @@ export function EstimateSection({ scrollRef }: EstimateSectionProps) {
       {/* Dark overlay at ~55% opacity — matches hero style */}
       <div className="absolute inset-0 bg-black/55" />
 
-      {/* Centered white card with fade-in + slide-up animation (D-08, D-10) */}
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-        viewport={{ root: scrollRef, once: true, amount: 0.3 }}
-        className="relative z-10 w-full max-w-md mx-auto px-4"
-      >
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl font-display font-bold text-center">
-              Get Your Free Estimate
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <AnimatePresence mode="wait">
-              {(view.kind === 'form' || view.kind === 'loading' || view.kind === 'not-found') && (
-                <motion.div
-                  key="form"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                      <label
-                        htmlFor="vin-input"
-                        className="block text-sm font-medium text-foreground mb-1"
-                      >
-                        Vehicle Identification Number
-                      </label>
-                      <input
-                        id="vin-input"
-                        type="text"
-                        value={vin}
-                        onChange={(e) => {
-                          setVin(e.target.value.toUpperCase())
-                          if (vinError) setVinError('')
-                          if (view.kind !== 'form') setView({ kind: 'form' })
-                        }}
-                        placeholder="Enter your 17-character VIN"
-                        maxLength={17}
-                        disabled={view.kind === 'loading'}
-                        className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
-                        autoComplete="off"
-                        spellCheck={false}
-                      />
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Find your VIN on the driver-side dashboard or door jamb
-                      </p>
-                      {vinError && (
-                        <p className="mt-1 text-sm text-destructive" role="alert">
-                          {vinError}
+      {/* Inner scroll wrapper (UAT gap 2 / test 14 fix): conditional scroller so the
+          card stays fully reachable on short viewports without the section itself
+          scrolling. `max-h-dvh` (not `h-full`) means this only engages once the card's
+          natural height exceeds the viewport — desktop and >=~824px-tall viewports are
+          pixel-identical to before, since the wrapper never reaches its cap there.
+          Kept OUTSIDE the motion.div so the scrollRef IntersectionObserver root's
+          geometry relative to the observed element is unchanged. */}
+      <div className="relative z-10 w-full max-h-dvh overflow-y-auto overscroll-contain">
+        {/* Centered white card with fade-in + slide-up animation (D-08, D-10) */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+          viewport={{ root: scrollRef, once: true, amount: 0.3 }}
+          className="w-full max-w-md mx-auto px-4 py-6"
+        >
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl font-display font-bold text-center">
+                Get Your Free Estimate
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AnimatePresence mode="wait">
+                {(view.kind === 'form' || view.kind === 'loading' || view.kind === 'not-found') && (
+                  <motion.div
+                    key="form"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                      <div>
+                        <label
+                          htmlFor="vin-input"
+                          className="block text-sm font-medium text-foreground mb-1"
+                        >
+                          Vehicle Identification Number
+                        </label>
+                        <input
+                          id="vin-input"
+                          type="text"
+                          value={vin}
+                          onChange={(e) => {
+                            setVin(e.target.value.toUpperCase())
+                            if (vinError) setVinError('')
+                            if (view.kind !== 'form') setView({ kind: 'form' })
+                          }}
+                          placeholder="Enter your 17-character VIN"
+                          maxLength={17}
+                          disabled={view.kind === 'loading'}
+                          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+                          autoComplete="off"
+                          spellCheck={false}
+                        />
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Find your VIN on the driver-side dashboard or door jamb
                         </p>
-                      )}
-                    </div>
-                    <Button type="submit" className="w-full" disabled={view.kind === 'loading'}>
-                      {view.kind === 'loading' ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                          Decoding VIN…
-                        </>
-                      ) : (
-                        'Get Estimate'
-                      )}
-                    </Button>
-                  </form>
-
-                  {/* D-18: NHTSA answered but rejected the VIN — likely a typo.
-                      The form stays visible/editable so the user can correct
-                      it; a secondary link offers manual entry rather than
-                      jumping straight to the fallback form. */}
-                  {view.kind === 'not-found' && (
-                    <div className="mt-4 space-y-2">
-                      <div className="flex items-start gap-1.5" role="alert">
-                        <Info className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-                        <p className="text-sm text-muted-foreground">{ESTIMATE_COPY.notFoundMessage}</p>
+                        {vinError && (
+                          <p className="mt-1 text-sm text-destructive" role="alert">
+                            {vinError}
+                          </p>
+                        )}
                       </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="w-full"
-                        onClick={() => setView({ kind: 'manual' })}
-                      >
-                        {ESTIMATE_COPY.manualEntryLinkLabel}
+                      <Button type="submit" className="w-full" disabled={view.kind === 'loading'}>
+                        {view.kind === 'loading' ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                            Decoding VIN…
+                          </>
+                        ) : (
+                          'Get Estimate'
+                        )}
                       </Button>
-                    </div>
-                  )}
-                </motion.div>
-              )}
+                    </form>
 
-              {/* D-17: NHTSA unreachable — manual entry fallback, not an error state. */}
-              {view.kind === 'manual' && (
-                <motion.div
-                  key="manual"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <ManualEntryForm
-                    leadIn={ESTIMATE_COPY.unreachableMessage}
-                    onCancel={() => setView({ kind: 'form' })}
-                    onEstimate={({ modelYear, sizeBucket: chosenBucket, estimates, adasApplies }) => {
-                      setSizeBucket(chosenBucket)
-                      setView({
-                        kind: 'result',
-                        // Year only — EstimateResult appends the bucket label
-                        // from live state so it tracks the selector (D-20).
-                        headline: String(modelYear),
-                        headlineFollowsSizeBucket: true,
-                        estimates,
-                        adasApplies,
-                        sizeBucketEditable: true,
-                        basisNote: ESTIMATE_COPY.manualBasisNote,
-                      })
-                    }}
-                  />
-                </motion.div>
-              )}
+                    {/* D-18: NHTSA answered but rejected the VIN — likely a typo.
+                        The form stays visible/editable so the user can correct
+                        it; a secondary link offers manual entry rather than
+                        jumping straight to the fallback form. */}
+                    {view.kind === 'not-found' && (
+                      <div className="mt-4 space-y-2">
+                        <div className="flex items-start gap-1.5" role="alert">
+                          <Info className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                          <p className="text-sm text-muted-foreground">{ESTIMATE_COPY.notFoundMessage}</p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="w-full"
+                          onClick={() => setView({ kind: 'manual' })}
+                        >
+                          {ESTIMATE_COPY.manualEntryLinkLabel}
+                        </Button>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
 
-              {view.kind === 'result' && (
-                <motion.div
-                  key="result"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <EstimateResult
-                    headline={view.headline}
-                    headlineFollowsSizeBucket={view.headlineFollowsSizeBucket}
-                    estimates={view.estimates}
-                    adasApplies={view.adasApplies}
-                    glassType={glassType}
-                    onGlassTypeChange={setGlassType}
-                    sizeBucket={sizeBucket}
-                    onSizeBucketChange={setSizeBucket}
-                    sizeBucketEditable={view.sizeBucketEditable}
-                    basisNote={view.basisNote}
-                    onReset={handleReset}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </CardContent>
-        </Card>
-      </motion.div>
+                {/* D-17: NHTSA unreachable — manual entry fallback, not an error state. */}
+                {view.kind === 'manual' && (
+                  <motion.div
+                    key="manual"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <ManualEntryForm
+                      leadIn={ESTIMATE_COPY.unreachableMessage}
+                      onCancel={() => setView({ kind: 'form' })}
+                      onEstimate={({ modelYear, sizeBucket: chosenBucket, estimates, adasApplies }) => {
+                        setSizeBucket(chosenBucket)
+                        setView({
+                          kind: 'result',
+                          // Year only — EstimateResult appends the bucket label
+                          // from live state so it tracks the selector (D-20).
+                          headline: String(modelYear),
+                          headlineFollowsSizeBucket: true,
+                          estimates,
+                          adasApplies,
+                          sizeBucketEditable: true,
+                          basisNote: ESTIMATE_COPY.manualBasisNote,
+                        })
+                      }}
+                    />
+                  </motion.div>
+                )}
+
+                {view.kind === 'result' && (
+                  <motion.div
+                    key="result"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <EstimateResult
+                      headline={view.headline}
+                      headlineFollowsSizeBucket={view.headlineFollowsSizeBucket}
+                      estimates={view.estimates}
+                      adasApplies={view.adasApplies}
+                      glassType={glassType}
+                      onGlassTypeChange={setGlassType}
+                      sizeBucket={sizeBucket}
+                      onSizeBucketChange={setSizeBucket}
+                      sizeBucketEditable={view.sizeBucketEditable}
+                      basisNote={view.basisNote}
+                      onReset={handleReset}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
     </section>
   )
 }
