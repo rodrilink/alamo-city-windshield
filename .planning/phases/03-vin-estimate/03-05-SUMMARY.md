@@ -135,3 +135,16 @@ None - no external service configuration required.
 ---
 *Phase: 03-vin-estimate*
 *Completed: 2026-08-04*
+
+## Self-Check: PASSED
+
+All created files verified present on disk:
+- `src/lib/constants.ts` — FOUND
+- `src/components/ui/segmented-control.tsx` — FOUND
+- `src/components/home/EstimateResult.tsx` — FOUND
+- `.planning/phases/03-vin-estimate/03-05-SUMMARY.md` — FOUND
+
+All commit hashes verified present in git log:
+- `6643e19` (Task 1) — FOUND
+- `0c1e240` (Task 2) — FOUND
+- `fa05b5b` (docs: SUMMARY) — FOUND
