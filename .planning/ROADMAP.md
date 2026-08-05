@@ -83,7 +83,7 @@ Plans:
   4. If the NHTSA API times out or fails, a manual entry fallback is shown instead of an error state
   5. Vehicles from 2018 or later display an ADAS calibration notice indicating the estimate includes potential calibration cost
 
-**Plans:** 7/9 plans executed
+**Plans:** 7/10 plans executed
 
 Plans:
 **Wave 1**
@@ -110,8 +110,12 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 03-09-PLAN.md — Gap closure: manual-path vehicle label must track the size-bucket selector (UAT test 10)
-- [ ] 03-08-PLAN.md — End-to-end human verification of all 5 success criteria *(re-run after 03-09)*
+- [ ] 03-09-PLAN.md — Gap closure: manual-path vehicle label must track the size-bucket selector (UAT test 10) *(Task 1 shipped in c3eb37f; Task 2 regression test blocked on component-test deps)*
+
+**Wave 7** *(blocked on Wave 5 completion)*
+
+- [ ] 03-10-PLAN.md — Gap closure: estimate result card clipped at the top on short viewports (UAT test 14)
+- [ ] 03-08-PLAN.md — End-to-end human verification of all 5 success criteria *(re-run after 03-09 and 03-10)*
 
 ### Phase 4: Booking & Contact
 
