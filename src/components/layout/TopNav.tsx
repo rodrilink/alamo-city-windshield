@@ -16,12 +16,21 @@ import {
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
 
-export function TopNav() {
+interface TopNavProps {
+  overlay?: boolean
+}
+
+export function TopNav({ overlay = false }: TopNavProps) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav
+      className={cn(
+        overlay ? 'absolute top-0' : 'sticky top-0',
+        'z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'
+      )}
+    >
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Logo />
 
