@@ -3,7 +3,7 @@ status: diagnosed
 phase: 03-vin-estimate
 source: [03-01-SUMMARY.md, 03-02-SUMMARY.md, 03-03-SUMMARY.md, 03-04-SUMMARY.md, 03-05-SUMMARY.md, 03-06-SUMMARY.md, 03-07-SUMMARY.md]
 started: 2026-08-05T03:40:00Z
-updated: 2026-08-05T04:50:00Z
+updated: 2026-08-05T05:10:00Z
 ---
 
 ## Current Test
@@ -112,4 +112,6 @@ blocked: 1
     - "Leave the decoded-VIN path's headline as the literal decoded make/model — it must NOT follow the size-bucket selector."
     - "Add a regression test asserting that changing sizeBucket on a manual result updates both the price range AND the rendered vehicle label together."
   debug_session: ""
+  fixed_in: "c3eb37f fix(03): derive manual-path vehicle label from live sizeBucket state"
+  fix_status: "code fix applied and verified (tsc 0, lint 0, 33/33 tests). Awaiting user browser re-test of UAT test 10. Regression test deferred to 03-09-PLAN.md (needs component-test dependencies)."
   diagnosed_by: "orchestrator direct source inspection (narrow, well-localized state bug; no debug agent spawned)"
