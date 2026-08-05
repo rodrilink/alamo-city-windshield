@@ -5,7 +5,7 @@ milestone_name: milestone
 status: executing
 stopped_at: Phase 3 context gathered
 last_updated: "2026-08-04T22:19:22.658Z"
-last_activity: 2026-08-04 -- Phase 03 execution started
+last_activity: 2026-08-05 -- Completed quick task 260805-i19: fix double scrollbar on home page
 progress:
   total_phases: 6
   completed_phases: 2
@@ -73,7 +73,16 @@ None yet.
 
 ### Blockers/Concerns
 
-None yet.
+- Phase 03 UAT (`03-UAT.md`) is `status: diagnosed` — 10 passed, 1 issue (fixed in `c3eb37f`, awaiting user re-test), 4 pending (tests 12-14), 1 blocked (test 15, `vin_cache`, needs a live Supabase project).
+- No Supabase project and no `.env.local` exist. This blocks `vin_cache` verification in Phase 03 and will block Phase 04 (booking writes to that DB). Same root cause as the 4 outstanding Phase 01 items.
+- Stale dev servers hold Windows file locks on `.claude/worktrees/`: port 3000 returns 500 and port 3010 was started by an executor. Three stale worktrees remain (`agent-a17ca78d`, `agent-a5c9189c`, `agent-a98f3e38`) and their build output makes repo-wide `npm run lint` report ~17k false problems — scope lint to `npx eslint src --ext .ts,.tsx`.
+- `workflow.auto_advance` was set to `false` on 2026-08-05 to keep a run scoped to Phase 03. Restore to `true` if chained execution is wanted again.
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260805-i19 | Fix double scrollbar on snap-scroll home page | 2026-08-05 | b728ef3 | [260805-i19-fix-double-scrollbar-on-snap-scroll-home](./quick/260805-i19-fix-double-scrollbar-on-snap-scroll-home/) |
 
 ## Session Continuity
 
