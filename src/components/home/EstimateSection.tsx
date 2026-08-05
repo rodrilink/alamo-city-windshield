@@ -2,32 +2,52 @@
 
 import { type RefObject, useState } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
-import { motion } from 'motion/react'
+import { AnimatePresence, motion } from 'motion/react'
+import { Info, Loader2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { BUSINESS } from '@/lib/constants'
+import { EstimateResult } from '@/components/home/EstimateResult'
+import { ManualEntryForm } from '@/components/home/ManualEntryForm'
+import { ESTIMATE_COPY } from '@/lib/constants'
+import { VIN_REGEX, type EstimateMatrix, type GlassType, type SizeBucket, type VinLookupResponse } from '@/types/vehicle'
 
 interface EstimateSectionProps {
   scrollRef: RefObject<HTMLDivElement | null>
 }
 
-// VIN regex: 17 chars, uppercase A-Z excluding I, O, Q + digits 0-9
-// Source: NHTSA VIN specification
-const VIN_REGEX = /^[A-HJ-NPR-Z0-9]{17}$/
+/**
+ * Discriminated view state replacing the Phase 2 `showResult` boolean.
+ * D-07: the VIN form is replaced by the result inside the same card, so
+ * exactly one of these renders inside `<CardContent>` at a time.
+ */
+type EstimateViewState =
+  | { kind: 'form' }
+  | { kind: 'loading' }
+  | {
+      kind: 'result'
+      headline: string
+      estimates: EstimateMatrix
+      adasApplies: boolean
+      sizeBucketEditable: boolean
+      basisNote?: string
+    }
+  | { kind: 'not-found' }
+  | { kind: 'manual' }
 
 export function EstimateSection({ scrollRef }: EstimateSectionProps) {
   const [vin, setVin] = useState('')
   const [vinError, setVinError] = useState('')
-  const [showResult, setShowResult] = useState(false)
+  const [view, setView] = useState<EstimateViewState>({ kind: 'form' })
+  const [glassType, setGlassType] = useState<GlassType>('standard')
+  const [sizeBucket, setSizeBucket] = useState<SizeBucket>('car')
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     const normalized = vin.trim().toUpperCase()
 
     if (normalized.length === 0) {
       setVinError('Please enter your VIN')
-      setShowResult(false)
+      setView({ kind: 'form' })
       return
     }
 
@@ -35,12 +55,79 @@ export function EstimateSection({ scrollRef }: EstimateSectionProps) {
       setVinError(
         'Please enter a valid 17-character VIN (letters A-Z excluding I, O, Q and digits 0-9)'
       )
-      setShowResult(false)
+      setView({ kind: 'form' })
       return
     }
 
     setVinError('')
-    setShowResult(true)
+    // D-14: reset to Standard on every new lookup so a fresh VIN never shows
+    // an inflated first price carried over from a prior selection.
+    setGlassType('standard')
+    setView({ kind: 'loading' })
+
+    try {
+      const response = await fetch(`/api/vin/${encodeURIComponent(normalized)}`)
+      const data = (await response.json()) as VinLookupResponse
+
+      switch (data.status) {
+        case 'decoded': {
+          if (data.vehicle === null || data.estimates === null || data.vehicle.sizeBucket === null) {
+            setView({ kind: 'manual' })
+            break
+          }
+          setSizeBucket(data.vehicle.sizeBucket)
+          setView({
+            kind: 'result',
+            headline: `${data.vehicle.modelYear} ${data.vehicle.make} ${data.vehicle.model}`,
+            estimates: data.estimates,
+            adasApplies: data.adasApplies,
+            sizeBucketEditable: false,
+          })
+          break
+        }
+        case 'needs-vehicle-type': {
+          // D-19: NHTSA decoded the VIN but BodyClass didn't map to a known
+          // bucket. Default to Car and show a live selector rather than
+          // silently guessing.
+          if (data.vehicle === null || data.estimates === null) {
+            setView({ kind: 'manual' })
+            break
+          }
+          setSizeBucket('car')
+          setView({
+            kind: 'result',
+            headline: `${data.vehicle.modelYear} ${data.vehicle.make} ${data.vehicle.model}`,
+            estimates: data.estimates,
+            adasApplies: data.adasApplies,
+            sizeBucketEditable: true,
+          })
+          break
+        }
+        case 'not-found':
+        case 'invalid':
+          // D-18: NHTSA answered (or the server rejected the format), so a
+          // typo is the likely cause. This is deliberately NOT the manual
+          // form — jumping there would hide a fixable mistake.
+          setView({ kind: 'not-found' })
+          break
+        case 'unreachable':
+          // D-17: NHTSA timed out or errored. Show the manual entry
+          // fallback rather than an error state (ROADMAP success criterion 4).
+          setView({ kind: 'manual' })
+          break
+      }
+    } catch {
+      // A failure to reach our own endpoint is indistinguishable to the user
+      // from NHTSA being unreachable — D-17 says the answer is the fallback
+      // form, not an error screen.
+      setView({ kind: 'manual' })
+    }
+  }
+
+  function handleReset() {
+    setView({ kind: 'form' })
+    setVin('')
+    setVinError('')
   }
 
   return (
@@ -70,60 +157,134 @@ export function EstimateSection({ scrollRef }: EstimateSectionProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label
-                  htmlFor="vin-input"
-                  className="block text-sm font-medium text-foreground mb-1"
+            <AnimatePresence mode="wait">
+              {(view.kind === 'form' || view.kind === 'loading' || view.kind === 'not-found') && (
+                <motion.div
+                  key="form"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
                 >
-                  Vehicle Identification Number
-                </label>
-                <input
-                  id="vin-input"
-                  type="text"
-                  value={vin}
-                  onChange={(e) => {
-                    setVin(e.target.value.toUpperCase())
-                    if (vinError) setVinError('')
-                    if (showResult) setShowResult(false)
-                  }}
-                  placeholder="Enter your 17-character VIN"
-                  maxLength={17}
-                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  autoComplete="off"
-                  spellCheck={false}
-                />
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Find your VIN on the driver-side dashboard or door jamb
-                </p>
-                {vinError && (
-                  <p className="mt-1 text-sm text-destructive" role="alert">
-                    {vinError}
-                  </p>
-                )}
-              </div>
-              <Button type="submit" className="w-full">
-                Get Estimate
-              </Button>
-            </form>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                      <label
+                        htmlFor="vin-input"
+                        className="block text-sm font-medium text-foreground mb-1"
+                      >
+                        Vehicle Identification Number
+                      </label>
+                      <input
+                        id="vin-input"
+                        type="text"
+                        value={vin}
+                        onChange={(e) => {
+                          setVin(e.target.value.toUpperCase())
+                          if (vinError) setVinError('')
+                          if (view.kind !== 'form') setView({ kind: 'form' })
+                        }}
+                        placeholder="Enter your 17-character VIN"
+                        maxLength={17}
+                        disabled={view.kind === 'loading'}
+                        className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+                        autoComplete="off"
+                        spellCheck={false}
+                      />
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Find your VIN on the driver-side dashboard or door jamb
+                      </p>
+                      {vinError && (
+                        <p className="mt-1 text-sm text-destructive" role="alert">
+                          {vinError}
+                        </p>
+                      )}
+                    </div>
+                    <Button type="submit" className="w-full" disabled={view.kind === 'loading'}>
+                      {view.kind === 'loading' ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                          Decoding VIN…
+                        </>
+                      ) : (
+                        'Get Estimate'
+                      )}
+                    </Button>
+                  </form>
 
-            {/* Fake result card (D-11) — Phase 2 placeholder, wired to real API in Phase 3 */}
-            {showResult && (
-              <div className="mt-4 rounded-lg bg-muted p-4 text-sm">
-                <p className="font-semibold text-foreground">2024 Toyota Camry</p>
-                <p className="text-muted-foreground">
-                  Estimated replacement: $250 – $400
-                </p>
-                <p className="mt-2 text-xs text-muted-foreground italic">
-                  Estimates launching soon — call {BUSINESS.phone} for an immediate
-                  quote.
-                </p>
-                {/* Book Appointment CTA (D-12) — links to /contact in Phase 2; Phase 4 rewires to booking calendar */}
-                <Link href="/contact" className="block mt-3">
-                  <Button className="w-full">Book Appointment</Button>
-                </Link>
-              </div>
-            )}
+                  {/* D-18: NHTSA answered but rejected the VIN — likely a typo.
+                      The form stays visible/editable so the user can correct
+                      it; a secondary link offers manual entry rather than
+                      jumping straight to the fallback form. */}
+                  {view.kind === 'not-found' && (
+                    <div className="mt-4 space-y-2">
+                      <div className="flex items-start gap-1.5" role="alert">
+                        <Info className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                        <p className="text-sm text-muted-foreground">{ESTIMATE_COPY.notFoundMessage}</p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => setView({ kind: 'manual' })}
+                      >
+                        {ESTIMATE_COPY.manualEntryLinkLabel}
+                      </Button>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+
+              {/* D-17: NHTSA unreachable — manual entry fallback, not an error state. */}
+              {view.kind === 'manual' && (
+                <motion.div
+                  key="manual"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <ManualEntryForm
+                    leadIn={ESTIMATE_COPY.unreachableMessage}
+                    onCancel={() => setView({ kind: 'form' })}
+                    onEstimate={({ modelYear, sizeBucket: chosenBucket, estimates, adasApplies }) => {
+                      setSizeBucket(chosenBucket)
+                      setView({
+                        kind: 'result',
+                        headline: `${modelYear} ${ESTIMATE_COPY.sizeLabels[chosenBucket]}`,
+                        estimates,
+                        adasApplies,
+                        sizeBucketEditable: true,
+                        basisNote: ESTIMATE_COPY.manualBasisNote,
+                      })
+                    }}
+                  />
+                </motion.div>
+              )}
+
+              {view.kind === 'result' && (
+                <motion.div
+                  key="result"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <EstimateResult
+                    headline={view.headline}
+                    estimates={view.estimates}
+                    adasApplies={view.adasApplies}
+                    glassType={glassType}
+                    onGlassTypeChange={setGlassType}
+                    sizeBucket={sizeBucket}
+                    onSizeBucketChange={setSizeBucket}
+                    sizeBucketEditable={view.sizeBucketEditable}
+                    basisNote={view.basisNote}
+                    onReset={handleReset}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </CardContent>
         </Card>
       </motion.div>
