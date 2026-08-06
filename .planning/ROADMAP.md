@@ -130,7 +130,7 @@ Plans:
   4. The contact page includes a VIN search field that uses the same decoder as the home page
   5. Form validation (Zod + react-hook-form) catches missing required fields before submission
 
-**Plans:** 10/12 plans executed
+**Plans:** 11/12 plans executed
 
 Plans:
 **Wave 1**
@@ -163,7 +163,7 @@ Plans:
 
 **Wave 7** *(blocked on 04-10)*
 
-- [ ] 04-11-PLAN.md — WR-01: derive day-level fully-booked from refetched availability
+- [x] 04-11-PLAN.md — WR-01: derive day-level fully-booked from refetched availability
 
 **Wave 8** *(blocked on 04-09, 04-10, 04-11)*
 
@@ -211,6 +211,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 1. Foundation | 5/5 | Complete   | 2026-04-13 |
 | 2. Public Pages | 4/4 | Complete   | 2026-04-14 |
 | 3. VIN Estimate | 9/10 | In Progress|  |
-| 4. Booking & Contact | 10/12 | In Progress|  |
+| 4. Booking & Contact | 11/12 | In Progress|  |
 | 5. Admin Backend | 0/TBD | Not started | - |
 | 6. Analytics | 0/TBD | Not started | - |
