@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control'
 import { BUSINESS, ESTIMATE_COPY } from '@/lib/constants'
-import { GLASS_TYPES, SIZE_BUCKETS, type EstimateMatrix, type GlassType, type SizeBucket } from '@/types/vehicle'
+import { GLASS_TYPES, isValidVin, SIZE_BUCKETS, type EstimateMatrix, type GlassType, type SizeBucket } from '@/types/vehicle'
 
 interface EstimateResultProps {
   headline: string
@@ -36,6 +36,17 @@ interface EstimateResultProps {
   onSizeBucketChange: (value: SizeBucket) => void
   sizeBucketEditable: boolean
   basisNote?: string
+  /**
+   * D-16/D-18: the VIN that produced this result, appended to the Book
+   * Appointment CTA's `/book` link so `/book` can pre-fill the booking form.
+   * Optional because the manual-entry path (`ManualEntryForm`, D-20) legitimately
+   * has no VIN — on that path the CTA links to plain `/book`. Per D-19, only
+   * this raw 17-character VIN may travel in the URL — never `vehicle_desc`,
+   * never a price, never the decoded make/model. Validated with `isValidVin`
+   * and URL-encoded before being appended; an invalid value is treated the
+   * same as "no VIN" rather than being placed in the URL unchecked.
+   */
+  vin?: string
   onReset: () => void
 }
 
@@ -56,9 +67,14 @@ export function EstimateResult({
   onSizeBucketChange,
   sizeBucketEditable,
   basisNote,
+  vin,
   onReset,
 }: EstimateResultProps) {
   const activeVariant = estimates[sizeBucket][glassType]
+  // D-19: only the raw, validated, URL-encoded VIN travels to /book — never
+  // vehicle_desc, make/model, or any pricing value. /book re-decodes
+  // server-side and never trusts URL-supplied vehicle data.
+  const bookHref = vin && isValidVin(vin) ? `/book?vin=${encodeURIComponent(vin)}` : '/book'
   // Derived from the SAME `sizeBucket` read as `activeVariant` above, so the
   // label and the price can never disagree (UAT test 10 regression).
   const displayHeadline = headlineFollowsSizeBucket
@@ -145,8 +161,8 @@ export function EstimateResult({
       {/* 7. Manual-entry basis note (D-20) */}
       {basisNote && <p className="text-xs text-muted-foreground">{basisNote}</p>}
 
-      {/* 8. Book Appointment CTA — links to /contact in Phase 3; Phase 4 rewires to booking calendar */}
-      <Link href="/contact" className="block">
+      {/* 8. Book Appointment CTA — D-16: rewired from /contact to /book; D-18 carries the VIN when known */}
+      <Link href={bookHref} className="block">
         <Button className="w-full">Book Appointment</Button>
       </Link>
 
