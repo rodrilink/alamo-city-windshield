@@ -175,9 +175,14 @@ export async function removeUserAction(prevState: RemoveUserActionState, formDat
             return { status: 'error', message: ADMIN_COPY.addUserGenericError }
         }
 
+        // Guard 1 (D-10): refuse self-removal. Checked BEFORE listUsers() --
+        // it needs only the caller's own id, so a self-delete attempt should not
+        // pay for an Admin API round-trip.
+        if (isSelfDeleteAttempt(targetId, caller.id)) {
+            return { status: 'error', message: ADMIN_COPY.selfDeleteError }
+        }
+
         const adminSupabase = createAdminClient()
-        // Called once -- its result backs both the total count (guard 2) and
-        // confirming the target still exists.
         const { data, error: listError } = await adminSupabase.auth.admin.listUsers({ perPage: 100 })
 
         if (listError) {
@@ -185,17 +190,46 @@ export async function removeUserAction(prevState: RemoveUserActionState, formDat
             return { status: 'error', message: ADMIN_COPY.addUserGenericError }
         }
 
-        // Guard 1 (D-10): refuse self-removal.
-        if (isSelfDeleteAttempt(targetId, caller.id)) {
-            return { status: 'error', message: ADMIN_COPY.selfDeleteError }
-        }
-
         // Guard 2 (D-10): refuse removing the last remaining admin.
         if (isLastAdminAttempt(data.users.length)) {
             return { status: 'error', message: ADMIN_COPY.lastAdminError }
         }
 
-        // Both guards passed -- only now is the irreversible delete attempted.
+        // KNOWN RACE, deliberately mitigated rather than eliminated (review WR-01).
+        // Guard 2 is a read-then-act check: the count above and the delete below are
+        // two separate Supabase Admin API calls, and the Admin API is not
+        // transactional across calls. No DB constraint backstops it either --
+        // `auth.users` has no CHECK/TRIGGER preventing zero rows. So two admins
+        // removing each other concurrently could both observe count=2, both pass,
+        // and both deletes land, leaving ZERO admins. With D-08 (no password reset,
+        // no email delivery) that state is only recoverable from the Supabase
+        // dashboard.
+        //
+        // Re-reading the count immediately before the delete does NOT make this
+        // atomic; it narrows the window from the whole request lifetime to the gap
+        // between two adjacent API calls. That is the strongest guarantee available
+        // without a transactional store for the admin list. Do NOT delete this
+        // re-check believing the earlier one covers it -- and do NOT claim the
+        // guards are race-free.
+        const { data: recheck, error: recheckError } = await adminSupabase.auth.admin.listUsers({ perPage: 100 })
+
+        if (recheckError) {
+            console.error('removeUserAction: listUsers re-check failed', { error: recheckError })
+            return { status: 'error', message: ADMIN_COPY.addUserGenericError }
+        }
+
+        if (isLastAdminAttempt(recheck.users.length)) {
+            return { status: 'error', message: ADMIN_COPY.lastAdminError }
+        }
+
+        // Confirm the target still exists in the re-read set -- it may have been
+        // removed by a concurrent request between the two reads.
+        if (!recheck.users.some((user) => user.id === targetId)) {
+            return { status: 'error', message: ADMIN_COPY.addUserGenericError }
+        }
+
+        // Both guards passed against a freshly-read count -- only now is the
+        // irreversible delete attempted.
         // shouldSoftDelete left at its default false: no soft-delete requirement exists.
         const { error: deleteError } = await adminSupabase.auth.admin.deleteUser(targetId)
 

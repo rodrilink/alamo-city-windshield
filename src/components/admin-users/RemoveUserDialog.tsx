@@ -54,10 +54,13 @@ export function RemoveUserDialog({ userId, email, triggerTestId }: RemoveUserDia
             </AlertDialogTrigger>
             <AlertDialogContent data-testid="dialog-remove-user">
                 <AlertDialogHeader>
+                    {/* D-11 is satisfied by the title naming the target email. The
+                        description deliberately does NOT repeat "Remove {email}?" --
+                        Base UI wires aria-labelledby AND aria-describedby to these two
+                        nodes, so duplicating the sentence made a screen reader announce
+                        it twice back to back (review WR-02). */}
                     <AlertDialogTitle>Remove {email}?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                        Remove {email}? {ADMIN_COPY.removeUserConfirmBody}
-                    </AlertDialogDescription>
+                    <AlertDialogDescription>{ADMIN_COPY.removeUserConfirmBody}</AlertDialogDescription>
                 </AlertDialogHeader>
 
                 {state.status === 'error' && (
