@@ -32,6 +32,8 @@ type EstimateViewState =
       adasApplies: boolean
       sizeBucketEditable: boolean
       basisNote?: string
+      /** D-18: the normalized VIN behind this result, carried to the Book Appointment CTA. Absent on the manual path. */
+      vin?: string
     }
   | { kind: 'not-found' }
   | { kind: 'manual' }
@@ -85,6 +87,7 @@ export function EstimateSection({ scrollRef }: EstimateSectionProps) {
             estimates: data.estimates,
             adasApplies: data.adasApplies,
             sizeBucketEditable: false,
+            vin: normalized,
           })
           break
         }
@@ -106,6 +109,7 @@ export function EstimateSection({ scrollRef }: EstimateSectionProps) {
             estimates: data.estimates,
             adasApplies: data.adasApplies,
             sizeBucketEditable: true,
+            vin: normalized,
           })
           break
         }
@@ -312,6 +316,7 @@ export function EstimateSection({ scrollRef }: EstimateSectionProps) {
                       onSizeBucketChange={setSizeBucket}
                       sizeBucketEditable={view.sizeBucketEditable}
                       basisNote={view.basisNote}
+                      vin={view.vin}
                       onReset={handleReset}
                     />
                   </motion.div>
