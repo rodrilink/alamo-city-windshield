@@ -209,8 +209,8 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 05-07-PLAN.md — `/admin` dashboard: summary cards, three charts with the D-01 empty state, two read-only tables
-- [ ] 05-08-PLAN.md — `/admin/users`: list, add-admin, remove-admin with both D-10 guards and D-11 confirmation
+- [x] 05-07-PLAN.md — `/admin` dashboard: summary cards, three charts with the D-01 empty state, two read-only tables
+- [x] 05-08-PLAN.md — `/admin/users`: list, add-admin, remove-admin with both D-10 guards and D-11 confirmation
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
@@ -243,5 +243,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 2. Public Pages | 4/4 | Complete   | 2026-04-14 |
 | 3. VIN Estimate | 9/10 | In Progress|  |
 | 4. Booking & Contact | 12/12 | Complete   | 2026-08-06 |
-| 5. Admin Backend | 6/9 | In Progress|  |
+| 5. Admin Backend | 8/9 | In Progress|  |
 | 6. Analytics | 0/TBD | Not started | - |
