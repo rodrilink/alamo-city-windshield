@@ -104,6 +104,63 @@ describe('bookingSchema VIN validation', () => {
     })
 })
 
+describe('bookingSchema length caps', () => {
+    it('passes a firstName of exactly 100 characters', () => {
+        // Arrange
+        const payload = baseBookingPayload({ firstName: 'a'.repeat(100) })
+
+        // Act
+        const result = bookingSchema.safeParse(payload)
+
+        // Assert
+        expect(result.success).toBe(true)
+    })
+
+    it('fails a firstName of 101 characters', () => {
+        // Arrange
+        const payload = baseBookingPayload({ firstName: 'a'.repeat(101) })
+
+        // Act
+        const result = bookingSchema.safeParse(payload)
+
+        // Assert
+        expect(result.success).toBe(false)
+    })
+
+    it('fails a lastName of 101 characters', () => {
+        // Arrange
+        const payload = baseBookingPayload({ lastName: 'a'.repeat(101) })
+
+        // Act
+        const result = bookingSchema.safeParse(payload)
+
+        // Assert
+        expect(result.success).toBe(false)
+    })
+
+    it('fails a phone of 31 characters', () => {
+        // Arrange
+        const payload = baseBookingPayload({ phone: '1'.repeat(31) })
+
+        // Act
+        const result = bookingSchema.safeParse(payload)
+
+        // Assert
+        expect(result.success).toBe(false)
+    })
+
+    it('fails a multi-kilobyte firstName -- the WR-03 scripted-POST threat case', () => {
+        // Arrange
+        const payload = baseBookingPayload({ firstName: 'a'.repeat(10000) })
+
+        // Act
+        const result = bookingSchema.safeParse(payload)
+
+        // Assert
+        expect(result.success).toBe(false)
+    })
+})
+
 describe('isLegalSlot -- D-15 / Pitfall 4 guard', () => {
     it('rejects appt_time 03:00 for a weekday date, because it is not a member of the generated slot list', () => {
         // Arrange

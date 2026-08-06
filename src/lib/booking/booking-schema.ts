@@ -18,6 +18,12 @@
 // parsing. This also keeps `bookingSchema` usable for client-side field-level
 // errors (missing name, malformed VIN) without also needing slot data wired
 // through the resolver.
+//
+// WR-03: `createBooking` is a public, unauthenticated Server Action, so the
+// `.max()` caps below are the application-layer bound against a scripted
+// POST that never touches the React form. The backing Postgres columns
+// remain unbounded `TEXT` by design -- the shared migration (used by Phases
+// 1, 3, 5, and 6) is not modified by this change.
 
 import { z } from 'zod'
 
@@ -31,9 +37,9 @@ import { VIN_REGEX } from '@/types/vehicle'
  * `VIN_REGEX` -- no second VIN pattern is defined here.
  */
 export const bookingSchema = z.object({
-    firstName: z.string().trim().min(1, 'First name is required'),
-    lastName: z.string().trim().min(1, 'Last name is required'),
-    phone: z.string().trim().min(1, 'Phone number is required'),
+    firstName: z.string().trim().min(1, 'First name is required').max(100, 'First name is too long'),
+    lastName: z.string().trim().min(1, 'Last name is required').max(100, 'Last name is too long'),
+    phone: z.string().trim().min(1, 'Phone number is required').max(30, 'Phone number is too long'),
     vin: z
         .string()
         .trim()
@@ -44,7 +50,7 @@ export const bookingSchema = z.object({
         .nullable(),
     apptDate: z.string().trim().min(1, 'Appointment date is required'),
     apptTime: z.string().trim().min(1, 'Appointment time is required'),
-    honeypot: z.string(),
+    honeypot: z.string().max(200),
 })
 
 /**
