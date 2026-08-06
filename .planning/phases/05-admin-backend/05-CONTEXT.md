@@ -139,6 +139,23 @@ pricing (V2-04).
   column exactly as Phase 4's D-12 intended: **no VIN re-decoding and no NHTSA calls from an internal
   page.**
 
+### Amendments (resolved 2026-08-06, post-research)
+
+- **D-18:** **The ADMIN-03 contacts chart reads the real `contacts` table, not `analytics_events`.**
+  Research surfaced a conflict between D-01 (charts query `analytics_events`) and D-02 (no card or
+  chart shows `0` when real data exists). `contacts` holds real Phase 4 rows today, so the contacts
+  chart buckets `contacts.created_at` over the D-03 window — matching how its own summary card already
+  behaves under D-02. Only the **visitors** and **VIN-search** charts read `analytics_events` and
+  therefore render the D-01 "tracking starts Phase 6" empty state.
+  - *Why:* a contacts card showing a real count directly above a contacts chart showing "no data"
+    reads as a bug, which is exactly the failure mode D-02 exists to prevent.
+  - D-01's payoff is unchanged: the two `analytics_events` charts still light up in Phase 6 with no
+    chart-code changes.
+- **D-19:** **Plan 01 carries a `checkpoint:human-action` to verify or create the first admin user.**
+  Research found no plan or summary anywhere in the repo documenting Phase 1 D-12's "create the first
+  admin manually in the Supabase dashboard" step. At least one `auth.users` row must exist or AUTH-01
+  is unverifiable. This blocks *verification* of the login work, not the building of it.
+
 ### Claude's Discretion
 
 - Chart type per metric (area vs bar vs line) and whether zero-activity days are gap-filled to keep a
@@ -337,19 +354,20 @@ Components plus Server Actions rather than a data-fetching library.
 
 ---
 
-## ⚠ Blocker affecting this phase
+## ⚠ Blocker affecting this phase — RESOLVED, with one narrower gap
 
-**No Supabase project and no `.env.local` exist.** Carried forward from Phase 4's context and still
-listed in `STATE.md` Blockers. Phase 4's plan `04-02-PLAN.md` was the `[BLOCKING]` provisioning step —
-**planning must confirm whether it actually ran**, since Phase 4's UAT was verified "against the live
-database", which suggests it did.
+**~~No Supabase project and no `.env.local` exist.~~ RESOLVED 2026-08-06.** Research confirmed
+`.env.local` exists on disk and that Phase 4's `04-02-PLAN.md` provisioning step **did run**:
+`04-02-SUMMARY.md` carries dated HTTP-status and Postgres-error-code evidence (including a real
+`23505` constraint violation) proving a live Supabase project exists with the migration pushed and RLS
+enforced. `STATE.md`'s Blockers entry is stale on this point.
 
-If it did not: **every success criterion in this phase requires a live auth database.** Login is
-impossible without real Supabase Auth, and `src/lib/supabase/middleware.ts` *silently skips auth
-entirely* when the env vars are absent (an intentional dev-convenience escape hatch) — meaning
-`/admin/*` would appear unprotected locally and success criterion 1 could not be verified at all.
-Additionally, D-05 requires at least one `auth.users` row to exist, created by hand in the Supabase
-dashboard per Phase 1 D-12.
+**Remaining narrower gap:** no plan or summary anywhere in the repo documents Phase 1 D-12's "create
+the first admin manually in the Supabase dashboard" step ever running. D-05 requires at least one
+`auth.users` row to exist, and without one AUTH-01 (login) cannot be verified at all. Handled by
+**D-19** — a `checkpoint:human-action` in plan 01. Note also that `src/lib/supabase/middleware.ts`
+*silently skips auth entirely* when env vars are absent (an intentional dev-convenience escape hatch),
+so success criterion 1 must be verified with the env vars actually loaded.
 
 ---
 
