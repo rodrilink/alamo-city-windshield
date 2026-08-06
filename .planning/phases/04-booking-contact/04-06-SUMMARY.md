@@ -136,3 +136,7 @@ None - no external service configuration required. The live Supabase project and
 ---
 *Phase: 04-booking-contact*
 *Completed: 2026-08-06*
+
+## Self-Check: PASSED
+
+All claimed created files verified present on disk (`src/app/(public)/book/page.tsx`, `src/lib/booking/availability-actions.ts`, `src/components/booking/BookingCalendar.tsx`, `src/components/booking/SlotList.tsx`, `src/components/booking/date-key.ts`, `src/components/booking/BookingForm.tsx`, `src/components/booking/BookingConfirmation.tsx`, this SUMMARY.md). All four commit hashes (`e2929f7`, `349590b`, `5d62e46`, `20b12b9`) verified present in `git log --oneline --all`.
