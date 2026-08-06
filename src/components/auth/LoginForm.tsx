@@ -14,7 +14,7 @@
 // the post-login destination inside `loginAction` itself; the form has no
 // business carrying or reading a redirect destination.
 
-import { useActionState } from 'react'
+import { useActionState, useTransition } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
@@ -28,7 +28,19 @@ import type { LoginActionState, LoginFormValues } from '@/types/auth'
 const INITIAL_STATE: LoginActionState = { status: 'idle' }
 
 export function LoginForm() {
-    const [state, formAction, isPending] = useActionState(loginAction, INITIAL_STATE)
+    const [state, formAction, isActionPending] = useActionState(loginAction, INITIAL_STATE)
+
+    // `loginAction` is the first Server Action in this repo that calls
+    // `redirect()` on success. BookingForm.tsx/ContactForm.tsx dispatch
+    // `formAction(formData)` bare inside `handleSubmit` -- safe for them,
+    // because `createBooking`/`createContact` only return state. Dispatching
+    // outside a transition here makes React unable to drive the redirect
+    // through the router, producing a client-side exception on success
+    // ("An async function with useActionState was called outside of a
+    // transition"). Wrap the dispatch in `startTransition` so React owns the
+    // navigation. Do NOT revert this to a bare `formAction(formData)` call.
+    const [isTransitionPending, startTransition] = useTransition()
+    const isPending = isActionPending || isTransitionPending
 
     const form = useForm<LoginFormValues>({
         resolver: zodResolver(loginSchema),
@@ -41,7 +53,9 @@ export function LoginForm() {
         const formData = new FormData()
         formData.set('email', values.email)
         formData.set('password', values.password)
-        formAction(formData)
+        startTransition(() => {
+            formAction(formData)
+        })
     }
 
     return (
