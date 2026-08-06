@@ -192,7 +192,7 @@ Plans:
 **Wave 1**
 
 - [ ] 05-01-PLAN.md — Package-approval gate for `recharts` + first-admin `auth.users` human action (D-19)
-- [ ] 05-03-PLAN.md — `ADMIN_COPY`, type contracts, both Zod schemas, D-10 guards and `bucketByDay` with unit tests
+- [x] 05-03-PLAN.md — `ADMIN_COPY`, type contracts, both Zod schemas, D-10 guards and `bucketByDay` with unit tests
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -243,5 +243,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 2. Public Pages | 4/4 | Complete   | 2026-04-14 |
 | 3. VIN Estimate | 9/10 | In Progress|  |
 | 4. Booking & Contact | 12/12 | Complete   | 2026-08-06 |
-| 5. Admin Backend | 0/9 | Not started | - |
+| 5. Admin Backend | 1/9 | In Progress|  |
 | 6. Analytics | 0/TBD | Not started | - |
