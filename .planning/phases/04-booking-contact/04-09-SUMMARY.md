@@ -94,3 +94,10 @@ None - no external service configuration required. This is a pure application-la
 ---
 *Phase: 04-booking-contact*
 *Completed: 2026-08-06*
+
+## Self-Check: PASSED
+
+All claimed files exist on disk (`src/lib/booking/booking-schema.ts`, `src/lib/contact/contact-schema.ts`,
+`src/lib/booking/booking-schema.test.ts`, `src/lib/contact/contact-schema.test.ts`,
+`.planning/phases/04-booking-contact/04-09-SUMMARY.md`). All claimed commit hashes
+(`4775e14`, `155767f`, `7dbc139`) verified present in `git log --oneline --all`.
