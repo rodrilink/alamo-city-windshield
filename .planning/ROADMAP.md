@@ -130,7 +130,32 @@ Plans:
   4. The contact page includes a VIN search field that uses the same decoder as the home page
   5. Form validation (Zod + react-hook-form) catches missing required fields before submission
 
-**Plans**: TBD
+**Plans:** 8 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 04-01-PLAN.md — Package legitimacy gate for five packages (blocking human approval)
+- [ ] 04-02-PLAN.md — [BLOCKING] Supabase project provisioning + .env.local + schema push
+- [ ] 04-03-PLAN.md — Slot generation from BUSINESS.hours (D-01..D-03) + America/Chicago server time (D-06)
+
+**Wave 2** *(blocked on 04-01)*
+
+- [ ] 04-04-PLAN.md — Install packages, generate + patch shadcn Calendar/Form, booking types, BOOKING_COPY/CONTACT_COPY
+
+**Wave 3** *(blocked on 04-02, 04-03, 04-04)*
+
+- [ ] 04-05-PLAN.md — Availability reads, Zod schemas, createBooking + createContact Server Actions
+
+**Wave 4** *(blocked on 04-05)*
+
+- [ ] 04-06-PLAN.md — /book route: calendar, slot list, booking form, confirmation
+- [ ] 04-07-PLAN.md — /contact rewrite: contact form, VIN search, EstimateResult CTA rewire to /book
+
+**Wave 5** *(blocked on 04-06, 04-07)*
+
+- [ ] 04-08-PLAN.md — End-to-end human verification of all 5 success criteria
+
 **UI hint**: yes
 
 ### Phase 5: Admin Backend
@@ -173,6 +198,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 1. Foundation | 5/5 | Complete   | 2026-04-13 |
 | 2. Public Pages | 4/4 | Complete   | 2026-04-14 |
 | 3. VIN Estimate | 9/10 | In Progress|  |
-| 4. Booking & Contact | 0/TBD | Not started | - |
+| 4. Booking & Contact | 0/8 | Planned | - |
 | 5. Admin Backend | 0/TBD | Not started | - |
 | 6. Analytics | 0/TBD | Not started | - |
