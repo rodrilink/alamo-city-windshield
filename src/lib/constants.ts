@@ -112,3 +112,43 @@ export const CONTACT_COPY = {
   genericErrorMessage:
     "We couldn't send your message due to a temporary problem. Please try again, or reach us directly at",
 } as const
+
+// Copy for the admin area (Phase 5) -- login, dashboard, and user
+// management. Follows the same shape and header-comment convention as
+// ESTIMATE_COPY/BOOKING_COPY/CONTACT_COPY above. This module ships to the
+// browser, so no secret value (a real password, a raw Supabase error, a
+// submitted email) belongs in any string here.
+export const ADMIN_COPY = {
+  // V2 Authentication: identical whether the email exists or not -- no
+  // account enumeration. Never interpolate the submitted email into this.
+  loginGenericError: 'Incorrect email or password. Please try again.',
+  // Distinct from loginGenericError: Supabase itself could not be reached is
+  // a different problem than a wrong password (Phase 3 D-17/D-18, Phase 4 D-10).
+  loginUnreachableError: "We couldn't reach the login service. Please try again in a moment.",
+  // AUTH-05
+  logoutLabel: 'Log out',
+  // D-01: shown on a chart when the underlying analytics_events table has
+  // zero rows for the window -- an honest empty state, not a broken axis.
+  dashboardEmptyStateHint: 'No data yet — event tracking arrives in Phase 6.',
+  // D-02: shorter subtitle for the two analytics_events-sourced summary cards.
+  trackingStartsHint: 'Tracking starts in Phase 6',
+  // Shown when a dashboard read returns ok: false. Must read differently
+  // from dashboardEmptyStateHint -- a failed query must never be
+  // indistinguishable from a legitimate zero-row result (RESEARCH.md Pitfall 3).
+  queryFailedMessage: "We couldn't load this data due to a temporary problem. Please refresh the page.",
+  // D-11: the fixed part of the removal confirmation. The caller interpolates
+  // the target email before this sentence, mirroring BOOKING_COPY.confirmationBody's split.
+  removeUserConfirmBody: 'They will immediately lose access.',
+  // D-10 guard 1
+  selfDeleteError: 'You cannot remove your own account.',
+  // D-10 guard 2
+  lastAdminError: 'At least one admin must remain.',
+  // D-12: shown once on successful user creation, next to the generated
+  // password. There is no email delivery, so this is the only time it is shown.
+  passwordShownOnceNotice: 'Account created. Save this password — it will not be shown again.',
+  // Fallback for a User whose last_sign_in_at is undefined (RESEARCH.md Pitfall 5).
+  neverSignedIn: 'Never signed in',
+  // Generic failure message for createUser errors -- never echo the raw
+  // Supabase error text to the browser.
+  addUserGenericError: "We couldn't create that account due to a temporary problem. Please try again.",
+} as const
