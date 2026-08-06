@@ -196,12 +196,12 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 05-02-PLAN.md — Generate and verify the `chart`, `alert-dialog` and `table` shadcn primitives on Base UI
-- [ ] 05-06-PLAN.md — `dashboard-queries.ts`: mixed-source totals, three D-03 series, two bounded tables
+- [x] 05-02-PLAN.md — Generate and verify the `chart`, `alert-dialog` and `table` shadcn primitives on Base UI
+- [x] 05-06-PLAN.md — `dashboard-queries.ts`: mixed-source totals, three D-03 series, two bounded tables
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 05-04-PLAN.md — Login/logout Server Actions, `LoginForm`, `/admin/login` page; verify AUTH-03/04 and USER-04
+- [x] 05-04-PLAN.md — Login/logout Server Actions, `LoginForm`, `/admin/login` page; verify AUTH-03/04 and USER-04
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -243,5 +243,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 2. Public Pages | 4/4 | Complete   | 2026-04-14 |
 | 3. VIN Estimate | 9/10 | In Progress|  |
 | 4. Booking & Contact | 12/12 | Complete   | 2026-08-06 |
-| 5. Admin Backend | 2/9 | In Progress|  |
+| 5. Admin Backend | 5/9 | In Progress|  |
 | 6. Analytics | 0/TBD | Not started | - |
