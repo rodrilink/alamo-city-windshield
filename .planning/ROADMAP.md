@@ -16,7 +16,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation** - Next.js project scaffolded, Supabase connected, Vercel configured, database schema with RLS in place (completed 2026-04-13)
 - [x] **Phase 2: Public Pages** - Home snap-scroll layout, About page, and navigation shell visible and responsive (completed 2026-04-14)
 - [x] **Phase 3: VIN Estimate** - VIN decoder, pricing formula, and estimate result fully functional end-to-end (completed 2026-08-05)
-- [x] **Phase 4: Booking & Contact** - Appointment booking calendar and contact form both save to Supabase (completed 2026-08-06)
+- [x] **Phase 4: Booking & Contact** - Appointment booking calendar and contact form both save to Supabase
+ (completed 2026-08-06)
 - [ ] **Phase 5: Admin Backend** - Admin login, protected dashboard with charts, and user management operational
 - [ ] **Phase 6: Analytics** - Event tracking wired across all user actions; admin charts powered by real data
 
@@ -184,7 +185,19 @@ Plans:
   4. The dashboard shows a table of recent contact submissions and a table of upcoming appointments
   5. An admin user can add a new admin account (email + password) and remove an existing one from the user management page
 
-**Plans**: TBD
+**Plans**: 9 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Package-approval gate for `recharts` + first-admin `auth.users` human action (D-19)
+- [ ] 05-02-PLAN.md — Generate and verify the `chart`, `alert-dialog` and `table` shadcn primitives on Base UI
+- [ ] 05-03-PLAN.md — `ADMIN_COPY`, type contracts, both Zod schemas, D-10 guards and `bucketByDay` with unit tests
+- [ ] 05-04-PLAN.md — Login/logout Server Actions, `LoginForm`, `/admin/login` page; verify AUTH-03/04 and USER-04
+- [ ] 05-05-PLAN.md — `(dashboard)` nested route group, sidebar shell and logout wiring (D-14)
+- [ ] 05-06-PLAN.md — `dashboard-queries.ts`: mixed-source totals, three D-03 series, two bounded tables
+- [ ] 05-07-PLAN.md — `/admin` dashboard: summary cards, three charts with the D-01 empty state, two read-only tables
+- [ ] 05-08-PLAN.md — `/admin/users`: list, add-admin, remove-admin with both D-10 guards and D-11 confirmation
+- [ ] 05-09-PLAN.md — End-of-phase verification of all 5 success criteria and both D-10 guard refusals
+
 **UI hint**: yes
 
 ### Phase 6: Analytics
@@ -212,5 +225,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 2. Public Pages | 4/4 | Complete   | 2026-04-14 |
 | 3. VIN Estimate | 9/10 | In Progress|  |
 | 4. Booking & Contact | 12/12 | Complete   | 2026-08-06 |
-| 5. Admin Backend | 0/TBD | Not started | - |
+| 5. Admin Backend | 0/9 | Not started | - |
 | 6. Analytics | 0/TBD | Not started | - |
