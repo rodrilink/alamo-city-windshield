@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation** - Next.js project scaffolded, Supabase connected, Vercel configured, database schema with RLS in place (completed 2026-04-13)
 - [x] **Phase 2: Public Pages** - Home snap-scroll layout, About page, and navigation shell visible and responsive (completed 2026-04-14)
 - [x] **Phase 3: VIN Estimate** - VIN decoder, pricing formula, and estimate result fully functional end-to-end (completed 2026-08-05)
-- [ ] **Phase 4: Booking & Contact** - Appointment booking calendar and contact form both save to Supabase
+- [x] **Phase 4: Booking & Contact** - Appointment booking calendar and contact form both save to Supabase (completed 2026-08-06)
 - [ ] **Phase 5: Admin Backend** - Admin login, protected dashboard with charts, and user management operational
 - [ ] **Phase 6: Analytics** - Event tracking wired across all user actions; admin charts powered by real data
 
@@ -130,7 +130,7 @@ Plans:
   4. The contact page includes a VIN search field that uses the same decoder as the home page
   5. Form validation (Zod + react-hook-form) catches missing required fields before submission
 
-**Plans:** 11/12 plans executed
+**Plans:** 12/12 plans complete
 
 Plans:
 **Wave 1**
@@ -167,7 +167,7 @@ Plans:
 
 **Wave 8** *(blocked on 04-09, 04-10, 04-11)*
 
-- [ ] 04-12-PLAN.md — Human re-verification of UAT step 24 and the slot-taken race path
+- [x] 04-12-PLAN.md — Human re-verification of UAT step 24 and the slot-taken race path
 
 **UI hint**: yes
 
@@ -211,6 +211,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 1. Foundation | 5/5 | Complete   | 2026-04-13 |
 | 2. Public Pages | 4/4 | Complete   | 2026-04-14 |
 | 3. VIN Estimate | 9/10 | In Progress|  |
-| 4. Booking & Contact | 11/12 | In Progress|  |
+| 4. Booking & Contact | 12/12 | Complete   | 2026-08-06 |
 | 5. Admin Backend | 0/TBD | Not started | - |
 | 6. Analytics | 0/TBD | Not started | - |
