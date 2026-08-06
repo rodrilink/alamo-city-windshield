@@ -136,3 +136,15 @@ None — no external service configuration required.
 ---
 *Phase: 04-booking-contact*
 *Completed: 2026-08-05*
+
+## Self-Check: PASSED
+
+- [x] `src/components/ui/calendar.tsx` exists
+- [x] `src/components/ui/form.tsx` exists
+- [x] `src/components/ui/label.tsx` exists
+- [x] `src/types/booking.ts` exists
+- [x] `.planning/phases/04-booking-contact/04-04-SUMMARY.md` exists
+- [x] Commit `1dec78c` found in git log
+- [x] Commit `35d47b2` found in git log
+- [x] Commit `9b851fd` found in git log
+- [x] Commit `a3568f3` found in git log
