@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Phase 5 context gathered
-last_updated: "2026-08-06T15:16:08.935Z"
-last_activity: 2026-08-06 -- Phase 05 execution started
+status: ready_to_plan
+stopped_at: Phase 05 complete (9/9) — ready to discuss Phase 6
+last_updated: 2026-08-06T18:39:42.642Z
+last_activity: 2026-08-06 -- Phase 05 complete (9/9), verification passed 5/5
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 40
-  completed_plans: 30
-  percent: 50
+  completed_plans: 39
+  percent: 83
 ---
 
 # Project State
@@ -21,22 +21,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-12)
 
 **Core value:** Users can enter their VIN, instantly see a windshield replacement estimate for their specific vehicle, and book an appointment — removing friction from getting a quote.
-**Current focus:** Phase 05 — admin-backend
+**Current focus:** Phase 6 — analytics
 
 ## Current Position
 
-Phase: 05 (admin-backend) — EXECUTING
-Plan: 1 of 9
-Status: Executing Phase 05
-Last activity: 2026-08-06 -- Phase 05 execution started
+Phase: 6
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-08-06 -- Phase 05 complete, verification passed
 
-Progress: [█████████░] 95% (18/19 plans)
+Progress: [████████░░] 83% (5/6 phases, 39/40 plans)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 30
+- Total plans completed: 39
 - Average duration: -
 - Total execution time: 0 hours
 
@@ -45,6 +45,7 @@ Progress: [█████████░] 95% (18/19 plans)
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 04 | 12 | - | - |
+| 05 | 9 | - | - |
 
 **Recent Trend:**
 
@@ -66,6 +67,10 @@ Recent decisions affecting current work:
 - VIN: All NHTSA calls through a Route Handler proxy with 6-second timeout + manual fallback
 - Booking: Store appointment times as `DATE` + `TIME` columns (not `TIMESTAMPTZ`) to avoid timezone math
 - Pricing: Hardcode formula values in `lib/pricing.ts` for v1; `pricing_config` table is a v2 concern
+- Admin (Phase 05): `auth.users` IS the admin list (D-05) — no separate roles table in v1
+- Admin (Phase 05): `/admin/login` sits OUTSIDE the `(dashboard)` route group so no authenticated chrome can render on it (D-14)
+- Admin (Phase 05): middleware is the single owner of the `/admin/*` guard — layouts deliberately do NOT duplicate the redirect, to avoid two enforcement points drifting apart
+- Admin (Phase 05): dashboard reads use the RLS-respecting cookie client; only `admin-users-actions.ts` uses the service-role client, and only for `auth.admin.*` calls that require it
 
 ### Pending Todos
 
@@ -91,6 +96,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-06T14:12:01.666Z
-Stopped at: Phase 5 context gathered
-Resume file: .planning/phases/05-admin-backend/05-CONTEXT.md
+Last session: 2026-08-06T19:45:00Z
+Stopped at: Phase 05 complete (9/9) -- ready to discuss Phase 6
+Resume file: .planning/phases/05-admin-backend/05-VERIFICATION.md

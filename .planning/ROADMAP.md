@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Booking & Contact** - Appointment booking calendar and contact form both save to Supabase
  (completed 2026-08-06)
 
-- [ ] **Phase 5: Admin Backend** - Admin login, protected dashboard with charts, and user management operational
+- [x] **Phase 5: Admin Backend** - Admin login, protected dashboard with charts, and user management operational (completed 2026-08-06)
 - [ ] **Phase 6: Analytics** - Event tracking wired across all user actions; admin charts powered by real data
 
 ## Phase Details
@@ -214,7 +214,7 @@ Plans:
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 05-09-PLAN.md — End-of-phase verification of all 5 success criteria and both D-10 guard refusals
+- [x] 05-09-PLAN.md — End-of-phase verification of all 5 success criteria and both D-10 guard refusals
 
 **UI hint**: yes
 
@@ -243,5 +243,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 2. Public Pages | 4/4 | Complete   | 2026-04-14 |
 | 3. VIN Estimate | 9/10 | In Progress|  |
 | 4. Booking & Contact | 12/12 | Complete   | 2026-08-06 |
-| 5. Admin Backend | 8/9 | In Progress|  |
+| 5. Admin Backend | 9/9 | Complete   | 2026-08-06 |
 | 6. Analytics | 0/TBD | Not started | - |
