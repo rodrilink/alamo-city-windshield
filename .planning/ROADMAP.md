@@ -130,7 +130,7 @@ Plans:
   4. The contact page includes a VIN search field that uses the same decoder as the home page
   5. Form validation (Zod + react-hook-form) catches missing required fields before submission
 
-**Plans:** 7/8 plans executed
+**Plans:** 8/12 plans executed (4 gap-closure plans added)
 
 Plans:
 **Wave 1**
@@ -154,7 +154,20 @@ Plans:
 
 **Wave 5** *(blocked on 04-06, 04-07)*
 
-- [ ] 04-08-PLAN.md — End-to-end human verification of all 5 success criteria
+- [x] 04-08-PLAN.md — End-to-end human verification of all 5 success criteria
+
+**Wave 6** *(gap closure — blocked on 04-08 verification)*
+
+- [ ] 04-09-PLAN.md — WR-03: Zod .max() length caps on booking + contact schemas
+- [ ] 04-10-PLAN.md — CONT-06 gap: gate booking submit through handleSubmit; WR-02 slot deselect preserving D-09 values
+
+**Wave 7** *(blocked on 04-10)*
+
+- [ ] 04-11-PLAN.md — WR-01: derive day-level fully-booked from refetched availability
+
+**Wave 8** *(blocked on 04-09, 04-10, 04-11)*
+
+- [ ] 04-12-PLAN.md — Human re-verification of UAT step 24 and the slot-taken race path
 
 **UI hint**: yes
 
