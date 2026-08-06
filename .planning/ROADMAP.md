@@ -205,7 +205,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 05-05-PLAN.md — `(dashboard)` nested route group, sidebar shell and logout wiring (D-14)
+- [x] 05-05-PLAN.md — `(dashboard)` nested route group, sidebar shell and logout wiring (D-14)
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
@@ -243,5 +243,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 2. Public Pages | 4/4 | Complete   | 2026-04-14 |
 | 3. VIN Estimate | 9/10 | In Progress|  |
 | 4. Booking & Contact | 12/12 | Complete   | 2026-08-06 |
-| 5. Admin Backend | 5/9 | In Progress|  |
+| 5. Admin Backend | 6/9 | In Progress|  |
 | 6. Analytics | 0/TBD | Not started | - |
