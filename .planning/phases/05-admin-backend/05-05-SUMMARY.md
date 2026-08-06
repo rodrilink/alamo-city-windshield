@@ -2,7 +2,7 @@
 phase: 05-admin-backend
 plan: 05
 subsystem: auth
-tags: [route-groups, admin-layout, sidebar, logout, checkpoint-pending]
+tags: [route-groups, admin-layout, sidebar, logout]
 
 # Dependency graph
 requires:
@@ -36,19 +36,19 @@ key-decisions:
   - "Only user.email (never the full user object, id, or token) is passed as a prop into AdminSidebar, per T-05-05-02"
   - "Added ADMIN_COPY.navDashboardLabel/navUsersLabel (not in this plan's files_modified) to keep sidebar nav labels in the established copy-module convention and resolve an unused-import lint warning -- documented as a deviation below"
 
-requirements-completed: []
-requirements-partial: [AUTH-05, ADMIN-01]
+requirements-completed: [AUTH-05]
+requirements-partial: [ADMIN-01]
 
 # Metrics
-duration: pending (checkpoint reached mid-plan)
-completed: pending
+duration: ~10 min autonomous + human checkpoint
+completed: 2026-08-06
 ---
 
 # Phase 5 Plan 05: (dashboard) Route Group Layout, Sidebar, and Logout Summary
 
 **The D-14 authenticated admin shell -- a nested `(dashboard)` route group with a sidebar layout reading identity via `getUser()`, wired to the existing `logoutAction` -- built and automated-verified; a blocking human-verify checkpoint is now open to confirm `/admin/login` renders with none of this chrome.**
 
-## Status: CHECKPOINT REACHED (Task 2 of 2)
+## Status: COMPLETE (2/2 tasks)
 
 Task 1 is complete and committed. Task 2 is a `checkpoint:human-verify` with `gate="blocking"` (per `05-05-PLAN.md` and Assumptions Log A2's MEDIUM-confidence flag on the nested-route-group claim). The automated half of Task 2 is done and both results are recorded below; the visual half requires a human to open a browser, which this agent cannot do.
 
@@ -172,12 +172,74 @@ The dev server is running on `http://localhost:3000` with `.env.local` (real Sup
 
 If the human reports sidebar chrome on the login page, this plan is not done -- the layout must be relocated and this checkpoint re-run.
 
+## CHECKPOINT RESOLVED — 2026-08-06
+
+**Human verdict: APPROVED.** Verbatim:
+
+> Approved
+>
+> /admin page now display the sidebar and a main page: PROBE DASHBOARD OK
+> Clicking in logout works ok
+
+**What this confirms:**
+
+| Item | Result |
+|------|--------|
+| D-14 `(dashboard)` layout wraps `/admin` | ✓ Sidebar rendered around the page body |
+| AUTH-05 logout | ✓ `LogoutButton` → `logoutAction` works end-to-end |
+| Login redirect completes | ✓ Lands on `/admin` with no client-side exception |
+| `/admin/login` excluded from the group | ✓ Verified structurally (page is a sibling of `(dashboard)`, untouched by this plan) and by HTTP (200, no redirect). The logged-out *visual* bare-page check was not separately reported by the human; the structural + HTTP evidence stands, and `05-09` re-verifies the logged-out login surface as part of success criterion 2. |
+
+**Verification method deviation:** the checkpoint as written expected the human to
+see a **404** at `/admin` (since `05-07` had not run). Instead, a temporary probe
+page was placed at `src/app/(admin)/admin/(dashboard)/page.tsx` so the authenticated
+success path could actually be exercised — a bare 404 falls through to Next.js's
+built-in not-found boundary, which bypasses nested group layouts and therefore could
+never have proven the sidebar wraps `/admin`. The probe rendered `PROBE DASHBOARD OK`
+inside the sidebar shell, proving the layout applies. **The probe page was deleted
+immediately after confirmation** and is not part of the phase deliverable; `05-07`
+creates the real `page.tsx` at that path.
+
+## Blocking bug found by this checkpoint (fixed in `680656a`)
+
+Human UAT caught a genuine defect that every automated check had missed. Logging in
+threw `Application error: a client-side exception has occurred` instead of navigating.
+
+**Root cause — in `05-04`'s `LoginForm.tsx`, not this plan.** The form dispatched
+`formAction(formData)` bare inside react-hook-form's `handleSubmit`, faithfully
+following the `BookingForm.tsx` / `ContactForm.tsx` pattern that `05-PATTERNS.md`
+prescribes. Browser console named it exactly: *"An async function with useActionState
+was called outside of a transition."* Outside a transition React cannot drive
+`redirect()` through the router, so a **successful** login crashed.
+
+**Why the pattern was wrong here, and why this is a repo-level gap rather than
+executor error:** `createBooking` and `createContact` only return state — they never
+redirect, so the bare dispatch is safe for them. `loginAction` is the **first Server
+Action in this repo to call `redirect()`**, the one case the documented pattern does
+not survive. `05-PATTERNS.md`'s guidance is incomplete for redirecting actions.
+
+**Fix:** wrap the dispatch in `startTransition` and merge `useActionState`'s pending
+flag with `useTransition`'s so the submit button's disabled/spinner state stays
+correct across the redirect. Zod-validates-before-dispatch is preserved. An explicit
+comment warns against reverting it.
+
+**Why automated checks missed it:** the executor's `curl` probes covered
+`/admin/login` (200) and `/admin` while logged **out** (307). Neither request ever
+renders the authenticated success path. This is the class of defect only a human
+session reaches — and the reason this checkpoint is `blocking-human`.
+
 ## Next Phase Readiness
 
-Blocked on the human confirmation above. Once received, a continuation agent will:
-- Record the human's verbatim confirmation in this SUMMARY
-- Finalize duration/completion metrics
-- Hand off readiness notes to `05-07`/`05-08`, which place their `page.tsx` files inside this now-verified `(dashboard)` structure
+- `(dashboard)` structure confirmed live; `05-07` and `05-08` may place their
+  `page.tsx` files inside it.
+- `05-07` must create the real `src/app/(admin)/admin/(dashboard)/page.tsx` — the
+  probe used for verification here was removed, so `/admin` currently 404s.
+- **Carried to `05-09`:** re-verify the logged-out `/admin/login` surface shows no
+  sidebar chrome (success criterion 2), and confirm the `startTransition` fix still
+  holds against the real dashboard page rather than a probe.
+- **Carried to any future form work:** `05-PATTERNS.md`'s form pattern needs a caveat
+  for Server Actions that redirect. `AddUserForm` in `05-08` returns state rather than
+  redirecting, so it is unaffected.
 
 ## Self-Check: PASSED
 
@@ -185,4 +247,4 @@ All 3 created files verified present on disk in the worktree (`src/app/(admin)/a
 
 ---
 *Phase: 05-admin-backend*
-*Status: checkpoint pending human verification*
+*Status: complete -- checkpoint approved by human 2026-08-06*
