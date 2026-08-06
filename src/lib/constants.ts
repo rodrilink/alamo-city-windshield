@@ -59,3 +59,56 @@ export const ESTIMATE_COPY = {
   resetLabel: 'Estimate another vehicle',
   manualEntryLinkLabel: 'Enter your vehicle details manually',
 } as const
+
+// Copy for the appointment booking flow (Phase 4). This is the only source
+// of user-facing strings for /book — no vehicle pricing value or business
+// hours literal belongs here (those live in PRICING and BUSINESS.hours
+// respectively). This module ships to the browser (see ESTIMATE_COPY's same
+// note above).
+export const BOOKING_COPY = {
+  calendarLabel: 'Choose an appointment date',
+  slotListLabel: 'Available times',
+  noSlotsAvailable: 'No appointment times are available on this date. Please choose another date.',
+  formFieldLabels: {
+    firstName: 'First name',
+    lastName: 'Last name',
+    phone: 'Phone number',
+    vin: 'VIN (optional)',
+  },
+  submitLabel: 'Book appointment',
+  // D-10: this message is shown ONLY when the insert fails with Postgres
+  // error code 23505 -- the UNIQUE (appt_date, appt_time) violation. It is
+  // the sole signal that someone else took the slot first.
+  slotTakenMessage: "That time slot was just taken. Please choose another available time.",
+  // D-10: every OTHER failure gets this message instead. It must never imply
+  // the slot is unavailable -- the slot may still be free -- and it reads as
+  // one sentence once the caller appends BUSINESS.phone.
+  genericErrorMessage:
+    "We couldn't complete your booking due to a temporary problem. Please try again, or call us to book by phone at",
+  // D-11/BOOK-07: shown on the confirmation screen. There is no email
+  // confirmation in v1 (V2-05 is out of scope), so this phone-call line is
+  // the only follow-up the customer is told to expect. The component
+  // interpolates the customer's own submitted phone number in place of the
+  // trailing colon.
+  confirmationHeading: "You're booked!",
+  confirmationBody: "We've recorded your appointment. We'll call you at",
+  confirmationFollowUp: 'to confirm the details.',
+} as const
+
+// Copy for the contact form (Phase 4). This is the only source of
+// user-facing strings for /contact's form -- this module ships to the
+// browser (see ESTIMATE_COPY's same note above).
+export const CONTACT_COPY = {
+  formFieldLabels: {
+    firstName: 'First name',
+    lastName: 'Last name',
+    phone: 'Phone number',
+    address: 'Address (optional)',
+  },
+  submitLabel: 'Send message',
+  // CONT-05
+  successMessage: "Thanks for reaching out! We've received your message and will be in touch soon.",
+  // Same "transient, includes phone" rule as BOOKING_COPY.genericErrorMessage.
+  genericErrorMessage:
+    "We couldn't send your message due to a temporary problem. Please try again, or reach us directly at",
+} as const
