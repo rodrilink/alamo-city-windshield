@@ -594,14 +594,23 @@ This is the shape each of the three chart components (visitors, contacts, VIN se
 | A1 | `npx shadcn@latest add chart` will resolve `recharts` to a version satisfying `^3` at actual install time, landing on or near `3.10.1` rather than the registry's pinned floor `3.8.0` | Standard Stack / Package Legitimacy Audit | Low — both are within the same major version and the `ChartConfig`/`ChartContainer` API used here is stable across 3.x; if a breaking 3.x change existed it would surface immediately as a build failure, not a silent bug |
 | A2 | Nesting a route group `(dashboard)` inside `(admin)/admin/` correctly excludes `login/` from that group's `layout.tsx`, based on documented Next.js App Router route-group semantics rather than a direct experiment against Next.js 15.5.15 in this repo | Architecture Patterns / Recommended Project Structure | Medium — if wrong, the planner should have the first Wave verify this structure renders `/admin/login` without the sidebar before building the rest of the phase on top of it; this is a five-minute manual check, not a deep investigation |
 
-## Open Questions
+## Open Questions (RESOLVED 2026-08-06)
 
-1. **Has Phase 1 D-12's "create the first admin manually" step actually been performed against the live Supabase project?**
+> Both questions below were resolved with the owner during planning and are now locked decisions in
+> `05-CONTEXT.md` → "Amendments". The recommendations were accepted as written. The original analysis
+> is retained for provenance; **the decisions, not this section, are authoritative.**
+
+1. **RESOLVED — see CONTEXT.md D-19.** Recommendation accepted: plan `05-01` Task 2 is a
+   `checkpoint:human-action` verifying/creating the first `auth.users` row.
+   **Has Phase 1 D-12's "create the first admin manually" step actually been performed against the live Supabase project?**
    - What we know: The live database exists (Phase 4's `04-02` proved it with real INSERT/DELETE probes), `.env.local` holds real, working credentials, and `auth.users` is the mechanism D-05 relies on entirely.
    - What's unclear: No plan, summary, or state file in this repository documents anyone visiting the Supabase Auth dashboard and creating a user. `STATE.md`'s blockers list still only mentions the now-resolved "no Supabase project / no `.env.local`" item, not this narrower one.
    - Recommendation: The planner should open Phase 5 with a `checkpoint:human-action` task asking the developer to confirm (via the Supabase dashboard's Authentication → Users panel) whether at least one user exists, and to create one if not. This is a two-minute manual action, structurally identical to Phase 4's `04-02` Task 1, but much smaller in scope — it does not require creating a new project, only adding one row to an existing one.
 
-2. **Should the three dashboard charts (visitors, contacts, VIN searches) all read from `analytics_events`, or should the "contacts over time" chart instead bucket the real `contacts` table by `created_at`?**
+2. **RESOLVED — see CONTEXT.md D-18.** Recommendation accepted: the contacts chart buckets the real
+   `contacts` table; only the visitors and VIN-search charts read `analytics_events`. Implemented in
+   plans `05-06` and `05-07`.
+   **Should the three dashboard charts (visitors, contacts, VIN searches) all read from `analytics_events`, or should the "contacts over time" chart instead bucket the real `contacts` table by `created_at`?**
    - What we know: D-02 is explicit that **card totals** are mixed-source (contacts/bookings cards read the real tables; visitors/VIN-search cards read `analytics_events` and show 0). D-01 says the **charts** query "the real `analytics_events` table."
    - What's unclear: D-01's language technically applies to all three charts including ADMIN-03 ("contact form submissions over time"), which would currently show zero-days on every chart even though real contact rows already exist in the `contacts` table today (Phase 4 delivered real submissions).
    - Recommendation: Apply D-02's mixed-source reasoning to the charts too, not just the cards — bucket the **contacts chart** from the real `contacts.created_at` column (available now, no Phase-6 dependency) while leaving the **visitors** and **VIN-search** charts reading `analytics_events` (correctly empty until Phase 6). This keeps the dashboard as honest as D-02 demands: don't show a flat zero-line for contact submissions when real submitted rows already exist to chart. Flag this explicitly to the user during planning/discussion, since it is a reasonable re-interpretation of D-01's literal wording rather than a settled decision.
@@ -612,7 +621,7 @@ This is the shape each of the three chart components (visitors, contacts, VIN se
 |------------|------------|-----------|---------|----------|
 | Live Supabase project + Postgres | Every success criterion in this phase | ✓ | Project ref `kyhvgskeihtccylpdkas`, provisioned in Phase 4's `04-02` | — |
 | `.env.local` with real credentials | `createClient()`, `createAdminClient()` | ✓ | Confirmed present on disk with real (non-placeholder) values | — |
-| At least one `auth.users` row | AUTH-01 (nothing to log in as), D-05 (admin list has ≥1 entry), D-10's last-admin guard (needs ≥1 to test against) | ✗ **unverified** | — | `checkpoint:human-action` task — see Open Question 1 |
+| At least one `auth.users` row | AUTH-01 (nothing to log in as), D-05 (admin list has ≥1 entry), D-10's last-admin guard (needs ≥1 to test against) | ✗ **unverified** | — | **Owned:** plan `05-01` Task 2 `checkpoint:human-action` (CONTEXT.md D-19) |
 | npm registry access | `npx shadcn@latest add chart alert-dialog table`, `npm install recharts` | ✓ | Confirmed reachable — `npm view` calls succeeded live during this research session | — |
 | Supabase CLI (`npx supabase`) | Not needed this phase — D-06 forbids migrations | n/a | n/a | n/a |
 

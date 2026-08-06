@@ -18,6 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: VIN Estimate** - VIN decoder, pricing formula, and estimate result fully functional end-to-end (completed 2026-08-05)
 - [x] **Phase 4: Booking & Contact** - Appointment booking calendar and contact form both save to Supabase
  (completed 2026-08-06)
+
 - [ ] **Phase 5: Admin Backend** - Admin login, protected dashboard with charts, and user management operational
 - [ ] **Phase 6: Analytics** - Event tracking wired across all user actions; admin charts powered by real data
 
@@ -188,14 +189,31 @@ Plans:
 **Plans**: 9 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 05-01-PLAN.md — Package-approval gate for `recharts` + first-admin `auth.users` human action (D-19)
-- [ ] 05-02-PLAN.md — Generate and verify the `chart`, `alert-dialog` and `table` shadcn primitives on Base UI
 - [ ] 05-03-PLAN.md — `ADMIN_COPY`, type contracts, both Zod schemas, D-10 guards and `bucketByDay` with unit tests
-- [ ] 05-04-PLAN.md — Login/logout Server Actions, `LoginForm`, `/admin/login` page; verify AUTH-03/04 and USER-04
-- [ ] 05-05-PLAN.md — `(dashboard)` nested route group, sidebar shell and logout wiring (D-14)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 05-02-PLAN.md — Generate and verify the `chart`, `alert-dialog` and `table` shadcn primitives on Base UI
 - [ ] 05-06-PLAN.md — `dashboard-queries.ts`: mixed-source totals, three D-03 series, two bounded tables
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 05-04-PLAN.md — Login/logout Server Actions, `LoginForm`, `/admin/login` page; verify AUTH-03/04 and USER-04
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 05-05-PLAN.md — `(dashboard)` nested route group, sidebar shell and logout wiring (D-14)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 05-07-PLAN.md — `/admin` dashboard: summary cards, three charts with the D-01 empty state, two read-only tables
 - [ ] 05-08-PLAN.md — `/admin/users`: list, add-admin, remove-admin with both D-10 guards and D-11 confirmation
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 05-09-PLAN.md — End-of-phase verification of all 5 success criteria and both D-10 guard refusals
 
 **UI hint**: yes
