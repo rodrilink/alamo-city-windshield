@@ -130,18 +130,18 @@ Plans:
   4. The contact page includes a VIN search field that uses the same decoder as the home page
   5. Form validation (Zod + react-hook-form) catches missing required fields before submission
 
-**Plans:** 2/8 plans executed
+**Plans:** 4/8 plans executed
 
 Plans:
 **Wave 1**
 
 - [x] 04-01-PLAN.md — Package legitimacy gate for five packages (blocking human approval)
-- [ ] 04-02-PLAN.md — [BLOCKING] Supabase project provisioning + .env.local + schema push
+- [x] 04-02-PLAN.md — [BLOCKING] Supabase project provisioning + .env.local + schema push
 - [x] 04-03-PLAN.md — Slot generation from BUSINESS.hours (D-01..D-03) + America/Chicago server time (D-06)
 
 **Wave 2** *(blocked on 04-01)*
 
-- [ ] 04-04-PLAN.md — Install packages, generate + patch shadcn Calendar/Form, booking types, BOOKING_COPY/CONTACT_COPY
+- [x] 04-04-PLAN.md — Install packages, generate + patch shadcn Calendar/Form, booking types, BOOKING_COPY/CONTACT_COPY
 
 **Wave 3** *(blocked on 04-02, 04-03, 04-04)*
 
@@ -198,6 +198,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 1. Foundation | 5/5 | Complete   | 2026-04-13 |
 | 2. Public Pages | 4/4 | Complete   | 2026-04-14 |
 | 3. VIN Estimate | 9/10 | In Progress|  |
-| 4. Booking & Contact | 2/8 | In Progress|  |
+| 4. Booking & Contact | 4/8 | In Progress|  |
 | 5. Admin Backend | 0/TBD | Not started | - |
 | 6. Analytics | 0/TBD | Not started | - |
