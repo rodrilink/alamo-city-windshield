@@ -56,7 +56,7 @@ Users can enter their VIN, instantly see a windshield replacement estimate for t
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Supabase for database + auth | Provides hosted PostgreSQL, auth, and real-time out of the box — reduces backend complexity | — Pending |
+| Supabase for database + auth | Provides hosted PostgreSQL, auth, and real-time out of the box — reduces backend complexity | ✓ Validated in Phase 5 — admin auth (login/logout/guarded routes) and `auth.users`-as-admin-list both working live |
 | Formula-based pricing | More flexible than fixed price table, allows modifiers per vehicle attribute | — Pending |
 | Full-page snap scroll on home | Clean modern UX, each section gets full attention | — Pending |
 | Visual calendar for appointments | Better UX than a simple date/time picker, shows availability at a glance | — Pending |
@@ -79,5 +79,23 @@ This document evolves at phase transitions and milestone boundaries.
 3. Audit Out of Scope — reasons still valid?
 4. Update Context with current state
 
+## Current State
+
+**Phase 5 complete (2026-08-06) — admin backend.** 5 of 6 phases done; 39/40 plans.
+
+Working and human-verified end to end: `/admin/login` with cookie-based Supabase SSR
+auth, middleware guarding every `/admin/*` route, the `(dashboard)` sidebar shell, the
+`/admin` dashboard (4 summary cards, 3 time-series charts, 2 read-only tables), and
+`/admin/users` add/remove with both D-10 safety guards (self-delete and last-admin)
+enforced server-side and confirmed refusing live.
+
+Repo gates on `master`: `tsc` 0, 115/115 vitest tests, lint clean, build 12/12 pages.
+
+**Carried into Phase 6:** the visitors (ADMIN-02) and VIN-search (ADMIN-04) charts
+render a "Tracking starts in Phase 6" empty state — nothing writes `analytics_events`
+rows with `event_type` `'page_view'` / `'vin_search'` yet. Phase 6 owns that producer
+and **must reconcile its emitted literals against `dashboard-queries.ts`**, or those two
+charts stay silently empty rather than erroring.
+
 ---
-*Last updated: 2026-04-12 after initialization*
+*Last updated: 2026-08-06 after Phase 5 completion*
