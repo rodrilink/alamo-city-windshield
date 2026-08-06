@@ -155,3 +155,61 @@ None — every new trust boundary this plan introduces (browser → `addUserActi
 ## Self-Check: PASSED
 
 All 5 created files verified present on disk (`src/lib/admin-users/admin-users-actions.ts`, `src/app/(admin)/admin/(dashboard)/users/page.tsx`, `src/components/admin-users/UserList.tsx`, `src/components/admin-users/RemoveUserDialog.tsx`, `src/components/admin-users/AddUserForm.tsx`). All 3 task commits (`f7fd0ae`, `239d72d`, `ac5375a`) verified present in `git log --oneline`.
+
+---
+
+## Post-Review Fixes (2026-08-06, commit `95c459b`)
+
+Phase-level code review (`05-REVIEW.md`, status `issues_found`: 0 critical, 3 warning,
+2 info) found two defects in this plan's deliverables. Both fixed and verified; the
+orchestrator confirmed each finding by reading the source before acting on it.
+
+### WR-01 — D-10 last-admin guard was a read-then-act check (real defect)
+
+`removeUserAction` read the admin count via `listUsers()` and then called `deleteUser()`
+as **two separate Supabase Admin API calls** with nothing atomic between them. Confirmed
+against `supabase/migrations/20260412000000_initial_schema.sql`: `auth.users` has no
+`CHECK` or `TRIGGER` preventing zero rows, so the guard was the only defense.
+
+Failure scenario: two admins A and B submit "remove B" and "remove A" near-simultaneously.
+Both requests observe `count = 2`, both pass `isLastAdminAttempt`, both deletes land →
+**zero admins**. Under D-08 (no password reset, no email delivery) that is recoverable
+only from the Supabase dashboard.
+
+Fix: re-read the count immediately before `deleteUser()`, re-run the guard against the
+fresh count, and confirm the target still exists in the re-read set. **This does not make
+the operation atomic** — the Admin API is not transactional across calls — it narrows the
+window from the whole request lifetime to the gap between two adjacent calls. That is the
+strongest guarantee available without a transactional store for the admin list. The
+limitation is documented inline so the guards are not later described as race-free.
+
+Also moved guard 1 (self-delete) ahead of `listUsers()`: it needs only the caller's own
+id, so a self-delete attempt no longer pays for an Admin API round-trip.
+
+Guard sequence is now: self-delete (181) → list (186) → last-admin (194) → **re-list
+(214) → last-admin re-check (221)** → `deleteUser()` (234).
+
+### WR-02 — duplicate dialog text announced twice by screen readers
+
+`RemoveUserDialog` rendered `Remove {email}?` in **both** `AlertDialogTitle` and
+`AlertDialogDescription`. Base UI wires `aria-labelledby` and `aria-describedby` to both
+nodes, so assistive tech announced the sentence twice in a row. Dropped the duplicate
+from the description. **D-11 remains satisfied** — the title still names the target email.
+
+### Findings deliberately NOT fixed
+
+| ID | Finding | Disposition |
+|----|---------|-------------|
+| WR-03 | `AddUserForm`'s "Add another admin" uses `window.location.reload()` rather than resetting local state | Works correctly; stylistic inconsistency only. Left for a future cleanup rather than churning a human-verified surface at phase close |
+| IN-01 | `UserList.formatDate` uses browser-local `toLocaleDateString` rather than the America/Chicago convention used elsewhere | Info. Low stakes for an internal admin list; would need the server-time module threaded through to fix properly |
+| IN-02 | No test exercises `removeUserAction`'s guard-call *ordering* (only the pure predicates are unit-tested) | Info. Requires the component/integration-test infrastructure this repo has deliberately deferred — already tracked as a standing blocker in STATE.md. **Now more relevant given WR-01**: the ordering and the re-check are exactly what a test would protect |
+
+### Review areas confirmed clean
+
+Service-role client `server-only` fenced and unreachable from Client Components; caller
+identity from `getUser()` never `formData`; no password/`confirmPassword`/generated
+password reaches any `console.*`; login errors identical whether or not the email exists
+(no account enumeration); no raw Supabase `error.message`/`error.code` returned to the
+browser; no server/client boundary leaks.
+
+Verified after fixes: `tsc` 0, `vitest` 115/115, `lint` clean.
