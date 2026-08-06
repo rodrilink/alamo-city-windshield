@@ -119,6 +119,10 @@ export const CONTACT_COPY = {
 // browser, so no secret value (a real password, a raw Supabase error, a
 // submitted email) belongs in any string here.
 export const ADMIN_COPY = {
+  // D-14: sidebar nav labels. Kept in this copy module for consistency with
+  // every other visible string here, even though they read fine inline.
+  navDashboardLabel: 'Dashboard',
+  navUsersLabel: 'Users',
   // V2 Authentication: identical whether the email exists or not -- no
   // account enumeration. Never interpolate the submitted email into this.
   loginGenericError: 'Incorrect email or password. Please try again.',
