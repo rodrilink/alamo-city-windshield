@@ -234,10 +234,18 @@ Plans:
 
 Plans:
 
+**Wave 1**
+
 - [ ] 06-01-PLAN.md — Shared event contract + dual-client tracking helpers + dashboard-queries reconciliation (D-01)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 06-02-PLAN.md — PageViewTracker client component mounted in the public layout (ANLY-02)
 - [ ] 06-03-PLAN.md — vin_search in both success branches of the VIN route (ANLY-03, D-15)
 - [ ] 06-04-PLAN.md — contact_submit + booking_created in the two Server Actions (ANLY-04/05, D-11)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 06-05-PLAN.md — End-to-end verification that all four events land and both charts populate
 
 ## Progress
