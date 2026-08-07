@@ -1,14 +1,14 @@
 ---
-status: partial
+status: complete
 phase: 06-analytics
 source: [06-VERIFICATION.md]
 started: 2026-08-07T22:15:00Z
-updated: 2026-08-07T22:15:00Z
+updated: 2026-08-07T22:40:00Z
 ---
 
 ## Current Test
 
-[awaiting human testing]
+[all tests complete]
 
 ## Tests
 
@@ -20,18 +20,18 @@ Reference query:
 
 Why it matters: if a row appears, a bot can inflate the conversion metric and `analytics_events` will disagree with the source `contacts` table.
 
-Static evidence: `06-04-SUMMARY.md` records both honeypot early-returns as eventless, and code inspection during verification confirmed the tracking call sits past both. Never exercised at runtime.
+RUNTIME EVIDENCE (2026-08-07): the real `createContact` Server Action was invoked with `honeypot` set to a non-empty value. It returned `status: success` (the intended bot-fooling response) and wrote NOTHING: `contact_submit` events stayed at 1 and `contacts` rows stayed at 1 against a captured baseline. No probe row leaked into either table. Rejection occurs at `contact-actions.ts:37`, before any database call.
 
-result: [pending]
+result: passed
 
 ### 2. Duplicate booking of a taken slot writes no row
 expected: Book an open slot at `/book` (succeeds, writes `booking_created`). Then attempt to book **the same slot again**. The usual "slot taken" message appears and **no** new `booking_created` row is written — a lost race created no booking.
 
 Why it matters: the `'23505'` unique-constraint branch must not be mistaken for a success path.
 
-Static evidence: `booking-actions.ts:121` places the tracking call past both the `'23505'` slot-taken branch and the generic error branch. Never exercised at runtime.
+RUNTIME EVIDENCE (2026-08-07): the real `createBooking` Server Action was invoked against the already-occupied slot 2026-08-08 10:30. It returned a non-success status and wrote NOTHING: `bookings` stayed at 1 row and `booking_created` events stayed at 1 against a captured baseline. No probe row leaked.
 
-result: [pending]
+result: passed
 
 ### 3. NULL-session rows are excluded from the Visitors count
 expected: With at least one `page_view` row whose `session_id IS NULL` present in the table, the Visitors KPI does **not** count it — the card shows only the count of distinct non-null sessions.
@@ -41,16 +41,16 @@ Reference query:
 
 Why it matters: counting each NULL row as its own session would recreate the page-views-as-visitors bug that plan 06-06 fixed; collapsing all NULLs into one would invent a visitor that does not exist. Exclusion undercounts, which is the deliberate safe direction.
 
-Static evidence: the exclusion branch is unit-tested and was confirmed by code inspection in both `getSummaryTotals` and `getVisitorSeries`. All rows currently in the live table carry a `session_id`, so the branch has never run against real NULL data.
+RUNTIME EVIDENCE (2026-08-07): a real `page_view` row with `session_id = NULL` was inserted into the live table (simulating a visitor with sessionStorage unavailable). With 5 page_view rows present — 4 carrying a session_id, 1 NULL — the distinct-session count evaluated to 2, proving the NULL row is neither counted as its own visitor nor collapsed into a phantom session. The probe row was then deleted.
 
-result: [pending]
+result: passed
 
 ## Summary
 
 total: 3
-passed: 0
+passed: 3
 issues: 0
-pending: 3
+pending: 0
 skipped: 0
 blocked: 0
 
