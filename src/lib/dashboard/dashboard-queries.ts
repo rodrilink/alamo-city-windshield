@@ -21,6 +21,7 @@ import { startOfDay, subDays } from 'date-fns'
 
 import { createClient } from '@/lib/supabase/server'
 import { bucketByDay, ANALYTICS_WINDOW_DAYS } from '@/lib/analytics/bucket-by-day'
+import { ANALYTICS_EVENTS } from '@/lib/analytics/events'
 import { getBusinessNowParts, getBusinessTodayDateString } from '@/lib/server-time'
 import type { DailyBucket, DashboardReadResult } from '@/types/admin'
 
@@ -38,28 +39,15 @@ export const RECENT_CONTACTS_LIMIT = 10
 export const UPCOMING_APPOINTMENTS_LIMIT = 10
 
 /**
- * `analytics_events.event_type` literal for a page-view event (ADMIN-02).
- * Matches the exact string ANLY-02's requirement text names -- Phase 6 owns
- * the write side and must reconcile against this constant rather than a
- * scattered string literal.
- */
-const EVENT_TYPE_PAGE_VIEW = 'page_view'
-
-/**
- * `analytics_events.event_type` literal for a VIN-search event (ADMIN-04).
- * Matches the exact string ANLY-03's requirement text names.
- */
-const EVENT_TYPE_VIN_SEARCH = 'vin_search'
-
-/**
  * Four card totals for the dashboard summary row (ADMIN-05), mixed-source
  * per D-02: `contacts` and `bookings` are real-table counts (Phase 4 already
  * writes real rows there); `visitors` and `vinSearches` count
- * `analytics_events` rows, which read `0` until Phase 6 wires the writes.
- * Every count uses `select('*', { count: 'exact', head: true })` so only the
- * count crosses the wire, never row data. A real `0` is the correct answer
- * for the analytics-sourced pair today -- never fabricate or estimate a
- * number (D-02).
+ * `analytics_events` rows, written by Phase 6 via
+ * `src/lib/analytics/track-event.ts`. Every count uses
+ * `select('*', { count: 'exact', head: true })` so only the count crosses
+ * the wire, never row data. A real `0` remains a legitimate empty state
+ * (e.g. no visitors yet today) that stays structurally distinct from a
+ * `{ ok: false }` failure -- never fabricate or estimate a number (D-02).
  */
 export interface SummaryTotals {
     contacts: number
@@ -83,8 +71,8 @@ export async function getSummaryTotals(): Promise<DashboardReadResult<SummaryTot
         const [contactsResult, bookingsResult, visitorsResult, vinSearchesResult] = await Promise.all([
             supabase.from('contacts').select('*', { count: 'exact', head: true }),
             supabase.from('bookings').select('*', { count: 'exact', head: true }),
-            supabase.from('analytics_events').select('*', { count: 'exact', head: true }).eq('event_type', EVENT_TYPE_PAGE_VIEW),
-            supabase.from('analytics_events').select('*', { count: 'exact', head: true }).eq('event_type', EVENT_TYPE_VIN_SEARCH),
+            supabase.from('analytics_events').select('*', { count: 'exact', head: true }).eq('event_type', ANALYTICS_EVENTS.PAGE_VIEW),
+            supabase.from('analytics_events').select('*', { count: 'exact', head: true }).eq('event_type', ANALYTICS_EVENTS.VIN_SEARCH),
         ])
 
         if (contactsResult.error) {
@@ -234,10 +222,11 @@ function windowStartIso(now: Date): string {
 /**
  * Reads the ADMIN-02 visitor-traffic chart series: `analytics_events` rows
  * whose `event_type` is a page view, over the trailing `ANALYTICS_WINDOW_DAYS`
- * window, bucketed into daily counts by `bucketByDay`. Per D-01 this reads
- * zero rows today (Phase 6 has not wired the write side yet) -- the page
- * renders `ADMIN_COPY.dashboardEmptyStateHint` for that legitimate empty
- * result, which is structurally distinct from a `{ ok: false }` failure.
+ * window, bucketed into daily counts by `bucketByDay`. Phase 6 now writes
+ * these rows via `src/lib/analytics/track-event.ts`'s `trackBrowserEvent`;
+ * a genuinely empty window (e.g. no visitors yet today) remains a legitimate
+ * empty result -- the page renders `ADMIN_COPY.dashboardEmptyStateHint` for
+ * it, structurally distinct from a `{ ok: false }` failure.
  *
  * @returns `{ ok: true, data: DailyBucket[] }` (always a full zero-filled window) on success, or `{ ok: false }` if the read failed.
  */
@@ -249,7 +238,7 @@ export async function getVisitorSeries(): Promise<DashboardReadResult<DailyBucke
         const { data, error } = await supabase
             .from('analytics_events')
             .select('created_at')
-            .eq('event_type', EVENT_TYPE_PAGE_VIEW)
+            .eq('event_type', ANALYTICS_EVENTS.PAGE_VIEW)
             .gte('created_at', windowStartIso(now))
 
         if (error) {
@@ -268,9 +257,9 @@ export async function getVisitorSeries(): Promise<DashboardReadResult<DailyBucke
 /**
  * Reads the ADMIN-04 VIN-search chart series: `analytics_events` rows whose
  * `event_type` is a VIN search, over the trailing `ANALYTICS_WINDOW_DAYS`
- * window, bucketed into daily counts by `bucketByDay`. Per D-01 this reads
- * zero rows today (Phase 6 has not wired the write side yet) -- same empty
- * state as `getVisitorSeries`.
+ * window, bucketed into daily counts by `bucketByDay`. Phase 6 now writes
+ * these rows via `src/lib/analytics/track-event.ts`'s `trackServerEvent` --
+ * same legitimate-empty-state reasoning as `getVisitorSeries`.
  *
  * @returns `{ ok: true, data: DailyBucket[] }` (always a full zero-filled window) on success, or `{ ok: false }` if the read failed.
  */
@@ -282,7 +271,7 @@ export async function getVinSearchSeries(): Promise<DashboardReadResult<DailyBuc
         const { data, error } = await supabase
             .from('analytics_events')
             .select('created_at')
-            .eq('event_type', EVENT_TYPE_VIN_SEARCH)
+            .eq('event_type', ANALYTICS_EVENTS.VIN_SEARCH)
             .gte('created_at', windowStartIso(now))
 
         if (error) {
