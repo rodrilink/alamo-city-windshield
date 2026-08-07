@@ -16,6 +16,8 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { bookingSchema, isLegalSlot } from '@/lib/booking/booking-schema'
 import { BOOKING_COPY, BUSINESS } from '@/lib/constants'
+import { trackServerEvent } from '@/lib/analytics/track-event'
+import { ANALYTICS_EVENTS } from '@/lib/analytics/events'
 import type { BookingActionState, BookingFormValues } from '@/types/booking'
 
 /**
@@ -112,6 +114,11 @@ export async function createBooking(prevState: BookingActionState, formData: For
             console.error('createBooking: insert failed', { error })
             return { status: 'error', values, message: `${BOOKING_COPY.genericErrorMessage} ${BUSINESS.phone}` }
         }
+
+        // D-11: fires only past both error branches above -- the honeypot
+        // early-return and the '23505' slot-taken race are deliberately
+        // eventless, since neither produced a real `bookings` row.
+        await trackServerEvent(ANALYTICS_EVENTS.BOOKING_CREATED)
 
         return { status: 'success', values }
     } catch (error) {
