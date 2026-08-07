@@ -3,6 +3,8 @@ import { decodeVin, mapBodyClassToSizeBucket } from '@/lib/vin'
 import { readVinCache, writeVinCache } from '@/lib/vin-cache'
 import { computeEstimateMatrix, adasApplies } from '@/lib/pricing'
 import { isValidVin, type DecodedVehicle, type VinLookupResponse } from '@/types/vehicle'
+import { trackServerEvent } from '@/lib/analytics/track-event'
+import { ANALYTICS_EVENTS } from '@/lib/analytics/events'
 
 // This is the phase's only trust boundary with the outside world (VIN-01) and
 // the only place the four application outcomes plus the `invalid` rejection
@@ -59,6 +61,15 @@ export async function GET(request: Request, { params }: { params: Promise<{ vin:
             // formula off the client (D-15) and makes both the glass toggle
             // and the D-19 vehicle-type selector zero-latency pure client
             // state.
+            //
+            // D-15: this cache-hit branch MUST also fire `vin_search`. A cache
+            // hit is a genuine successful search from the user's side — if
+            // only the post-NHTSA branch below fired this event, the
+            // ADMIN-04 chart would *drop* as caching improves, inverting the
+            // metric's meaning. Do not remove this call without removing its
+            // twin below.
+            await trackServerEvent(ANALYTICS_EVENTS.VIN_SEARCH, { vin })
+
             return NextResponse.json(
                 {
                     status: sizeBucket === null ? 'needs-vehicle-type' : 'decoded',
@@ -137,6 +148,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ vin:
         bodyClass: outcome.bodyClass,
         sizeBucket: outcome.sizeBucket,
     }
+
+    // D-13/D-14: this is the route's single insertion point (paired with the
+    // cache-hit branch above) for the `vin_search` event. Both `decoded` and
+    // `needs-vehicle-type` are genuine successful NHTSA decodes and both
+    // reach this one return, so no extra status condition is needed here.
+    await trackServerEvent(ANALYTICS_EVENTS.VIN_SEARCH, { vin })
 
     return NextResponse.json(
         {
