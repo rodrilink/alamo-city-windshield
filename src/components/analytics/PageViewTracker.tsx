@@ -20,6 +20,7 @@
 import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { trackBrowserEvent } from '@/lib/analytics/track-browser-event'
+import { getOrCreateSessionId } from '@/lib/analytics/session-id'
 import { ANALYTICS_EVENTS } from '@/lib/analytics/events'
 
 const SESSION_STORAGE_PREFIX = 'pv:'
@@ -42,7 +43,8 @@ export function PageViewTracker() {
       return
     }
 
-    void trackBrowserEvent(ANALYTICS_EVENTS.PAGE_VIEW, { page: pathname })
+    const sessionId = getOrCreateSessionId()
+    void trackBrowserEvent(ANALYTICS_EVENTS.PAGE_VIEW, { page: pathname, sessionId })
 
     try {
       window.sessionStorage.setItem(SESSION_STORAGE_PREFIX + pathname, '1')
