@@ -17,12 +17,11 @@ import 'server-only'
 // outage indistinguishable from D-01's legitimate "no data yet" empty state
 // (RESEARCH.md Pitfall 3, T-05-06-07).
 
-import { startOfDay, subDays } from 'date-fns'
-
 import { createClient } from '@/lib/supabase/server'
-import { bucketByDay, ANALYTICS_WINDOW_DAYS } from '@/lib/analytics/bucket-by-day'
+import { businessDayKey } from '@/lib/analytics/business-day'
+import { bucketByDay, ANALYTICS_WINDOW_DAYS, MILLISECONDS_PER_DAY } from '@/lib/analytics/bucket-by-day'
 import { ANALYTICS_EVENTS } from '@/lib/analytics/events'
-import { getBusinessNowParts, getBusinessTodayDateString } from '@/lib/server-time'
+import { getBusinessTodayDateString } from '@/lib/server-time'
 import type { DailyBucket, DashboardReadResult } from '@/types/admin'
 
 /**
@@ -37,6 +36,27 @@ export const RECENT_CONTACTS_LIMIT = 10
  * place.
  */
 export const UPCOMING_APPOINTMENTS_LIMIT = 10
+
+/**
+ * Gap closure (06-07, CR-01): row cap for both visitors reads
+ * (`getSummaryTotals`'s session-id read and `getVisitorSeries`), set at
+ * `supabase/config.toml`'s configured `max_rows` (1000). PostgREST enforces
+ * `max_rows` server-side and returns HTTP 200 with a silently truncated body
+ * when a query would exceed it -- `.error` stays null, so the existing
+ * `if (error)` guard cannot detect this. Applying the SAME limit explicitly
+ * here, combined with `.order()` (below) and saturation detection (below),
+ * converts an invisible truncation into a deterministic, detectable one: if
+ * the returned row count equals this limit, the result may be truncated and
+ * the read must fail loudly rather than return a possibly-wrong number.
+ *
+ * The durable fix is a Postgres RPC doing `count(distinct session_id)`
+ * server-side (`SECURITY INVOKER`, to preserve the existing
+ * `admin_select_analytics` RLS policy) -- see `06-REVIEW.md` CR-01's
+ * suggested migration. That removes the cap entirely by never transferring
+ * row data at all. Deferred here as a schema change (Rule 4), out of scope
+ * for this gap-closure plan.
+ */
+export const VISITOR_ROWS_LIMIT = 1000
 
 /**
  * Four card totals for the dashboard summary row (ADMIN-05), mixed-source
@@ -62,9 +82,24 @@ export const UPCOMING_APPOINTMENTS_LIMIT = 10
  * an owner makes decisions on. `getVisitorSeries` below applies the identical
  * rule for the chart.
  *
- * A real `0` remains a legitimate empty state (e.g. no visitors yet today)
- * that stays structurally distinct from a `{ ok: false }` failure -- never
- * fabricate or estimate a number (D-02).
+ * Gap closure (06-07, CR-01) -- **deliberate semantic change**: `visitors` is
+ * now "distinct sessions in the trailing `ANALYTICS_WINDOW_DAYS` window," NOT
+ * "distinct sessions ever." The card previously read all `page_view` rows
+ * with no time filter and no limit, which is unboundable: `supabase/
+ * config.toml`'s `max_rows = 1000` caps every PostgREST response server-side
+ * and returns HTTP 200 with a silently truncated body, so past ~200 lifetime
+ * sessions (at ~5 page views/session) the card would freeze permanently with
+ * no error. A windowed count that stays correct is a better contract than an
+ * all-time count that silently goes wrong. Any downstream copy that
+ * describes this card as an all-time total is now incorrect and must be
+ * updated to describe a trailing-window count instead.
+ *
+ * A real `0` remains a legitimate empty state (e.g. no visitors yet in the
+ * window) that stays structurally distinct from a `{ ok: false }` failure --
+ * never fabricate or estimate a number (D-02). A `{ ok: false }` is also now
+ * returned if the visitors read *saturates* `VISITOR_ROWS_LIMIT` -- see
+ * `getSummaryTotals`'s saturation check below -- because a truncated distinct
+ * count cannot be trusted to be correct.
  */
 export interface SummaryTotals {
     contacts: number
@@ -79,20 +114,37 @@ export interface SummaryTotals {
  * "some cards are wrong," so this function treats any single count error as
  * a whole-read failure per RESEARCH.md Pitfall 3.
  *
- * @returns `{ ok: true, data: SummaryTotals }` on success, or `{ ok: false }` if any count failed.
+ * Gap closure (06-07, CR-01): the visitors count is now windowed (see
+ * `SummaryTotals` TSDoc), ordered newest-first, and capped at
+ * `VISITOR_ROWS_LIMIT`. If the returned row count equals that limit, the
+ * distinct-session count may be missing rows PostgREST silently dropped --
+ * this is treated as a failure (`{ ok: false }`), not returned as a possibly
+ * wrong number.
+ *
+ * @returns `{ ok: true, data: SummaryTotals }` on success, or `{ ok: false }` if any count failed or the visitors read may have been truncated.
  */
 export async function getSummaryTotals(): Promise<DashboardReadResult<SummaryTotals>> {
     try {
         const supabase = await createClient()
+        const now = getServerNow()
 
         const [contactsResult, bookingsResult, visitorSessionsResult, vinSearchesResult] = await Promise.all([
             supabase.from('contacts').select('*', { count: 'exact', head: true }),
             supabase.from('bookings').select('*', { count: 'exact', head: true }),
-            // Gap closure (06-06): `head: true` cannot express DISTINCT, so
-            // this one count selects `session_id` for `page_view` rows and
-            // is reduced to a distinct-session count below (see SummaryTotals
-            // TSDoc for the full NULL-exclusion rationale).
-            supabase.from('analytics_events').select('session_id').eq('event_type', ANALYTICS_EVENTS.PAGE_VIEW),
+            // Gap closure (06-06 / 06-07): `head: true` cannot express
+            // DISTINCT, so this one count selects `session_id` for `page_view`
+            // rows and is reduced to a distinct-session count below (see
+            // SummaryTotals TSDoc for the NULL-exclusion and windowing
+            // rationale). The window, order and limit together bound the
+            // payload and make truncation deterministic and detectable
+            // (CR-01) rather than an arbitrary, invisible subset.
+            supabase
+                .from('analytics_events')
+                .select('session_id, created_at')
+                .eq('event_type', ANALYTICS_EVENTS.PAGE_VIEW)
+                .gte('created_at', windowStartIso(now))
+                .order('created_at', { ascending: false })
+                .limit(VISITOR_ROWS_LIMIT),
             supabase.from('analytics_events').select('*', { count: 'exact', head: true }).eq('event_type', ANALYTICS_EVENTS.VIN_SEARCH),
         ])
 
@@ -113,11 +165,26 @@ export async function getSummaryTotals(): Promise<DashboardReadResult<SummaryTot
             return { ok: false }
         }
 
+        const visitorRows = visitorSessionsResult.data ?? []
+        // Gap closure (06-07, CR-01): PostgREST returns HTTP 200 with a
+        // truncated body when a query exceeds `max_rows` -- `.error` stays
+        // null, so a full page of rows is the only detectable signal. A
+        // truncated distinct-session count is not safely correctable (we do
+        // not know which sessions were cut), so this surfaces as a visible
+        // failure rather than a silently wrong number.
+        if (visitorRows.length >= VISITOR_ROWS_LIMIT) {
+            console.error('getSummaryTotals: visitors read saturated VISITOR_ROWS_LIMIT, result may be truncated', {
+                limit: VISITOR_ROWS_LIMIT,
+                returned: visitorRows.length,
+            })
+            return { ok: false }
+        }
+
         // Gap closure (06-06): distinct, non-null session_id values only --
         // NULL rows (pre-migration or storage-unavailable) are excluded, not
         // collapsed into one phantom session. See SummaryTotals TSDoc.
         const distinctSessionIds = new Set(
-            (visitorSessionsResult.data ?? []).map((row) => row.session_id as string | null).filter((sessionId): sessionId is string => sessionId !== null)
+            visitorRows.map((row) => row.session_id as string | null).filter((sessionId): sessionId is string => sessionId !== null)
         )
 
         return {
@@ -227,24 +294,57 @@ export async function getUpcomingAppointments(): Promise<DashboardReadResult<Upc
 }
 
 /**
- * Derives "now" as a plain `Date` instant from the server-time module's
- * business-timezone parts (`getBusinessNowParts`), rather than calling
- * `new Date()` directly at each call site (T-05-06-05). The instant itself
- * is passed explicitly into `bucketByDay`, matching that function's
- * "clock passed as parameter, never read internally" contract.
+ * Returns the current instant, for passing explicitly into `bucketByDay`
+ * (matching that function's "clock passed as parameter, never read
+ * internally" contract) and into `windowStartIso` below.
+ *
+ * Gap closure (06-07, CR-03): this used to reconstruct a `Date` from
+ * `getBusinessNowParts()`'s America/Chicago wall-clock parts via
+ * `new Date(year, month - 1, day, hour, minute)`. That constructor
+ * interprets its numeric arguments in the **host machine's** timezone, so
+ * feeding Chicago parts into it produced an instant skewed by the
+ * host-Chicago UTC offset -- 5 hours on Vercel, which runs UTC. "Now" as an
+ * *instant* is timezone-independent; only its *rendering* into calendar
+ * parts needs a business timezone, and that rendering now happens
+ * exclusively downstream, through `businessDayKey` (CR-02's fix). Encoding a
+ * timezone into an instant and then treating the result as a real instant is
+ * exactly the anti-pattern `server-time.ts`'s own comments warn against --
+ * this function used to reintroduce it despite its docstring's claim
+ * otherwise.
  */
 function getServerNow(): Date {
-    const { year, month, day, hour, minute } = getBusinessNowParts()
-    return new Date(year, month - 1, day, hour, minute)
+    return new Date()
 }
 
 /**
  * Computes the D-03 window start (`ANALYTICS_WINDOW_DAYS` days back from
- * `now`) as an ISO-8601 instant, for the `.gte('created_at', ...)` filter
- * shared by all three chart-series reads below.
+ * `now`, inclusive of `now`'s own business day) as an ISO-8601 instant, for
+ * the `.gte('created_at', ...)` filter shared by every chart-series read and
+ * the CR-01 visitors reads above.
+ *
+ * Gap closure (06-07, CR-03): previously computed via
+ * `startOfDay(subDays(now, ...))` (`date-fns`), which reads `now`'s
+ * HOST-local calendar day -- on Vercel (UTC) that is not the same calendar
+ * day as `now`'s America/Chicago business day, shifting the window boundary
+ * by up to the host-Chicago UTC offset. The boundary is now derived from
+ * `businessDayKey` (the same America/Chicago day used everywhere else on
+ * this path, CR-02) rather than from a host-local `Date` reconstruction: the
+ * boundary is midnight America/Chicago at the start of the oldest day in the
+ * window, expressed as the exact instant `windowDays - 1` fixed 24h-blocks
+ * before `now`'s business-day start. Concretely, this parses
+ * `businessDayKey(now)` (a `'yyyy-MM-dd'` string) as midnight UTC and steps
+ * back by `(windowDays - 1) * 24h` in milliseconds -- never via host-local
+ * `setDate`/`getDate` (the same class of anti-pattern this function's
+ * previous implementation had). Parsing the day-key as UTC-midnight and
+ * stepping in fixed-size UTC days, rather than parsing it as Chicago
+ * midnight, makes the boundary intentionally slightly earlier than the exact
+ * Chicago-midnight instant (up to the UTC offset) -- an earlier `.gte` bound
+ * only ever WIDENS the window, so no event within the intended window can be
+ * excluded by this approximation.
  */
 function windowStartIso(now: Date): string {
-    return startOfDay(subDays(now, ANALYTICS_WINDOW_DAYS - 1)).toISOString()
+    const oldestDayKey = businessDayKey(new Date(now.getTime() - (ANALYTICS_WINDOW_DAYS - 1) * MILLISECONDS_PER_DAY))
+    return `${oldestDayKey}T00:00:00.000Z`
 }
 
 /**
@@ -261,7 +361,19 @@ function windowStartIso(now: Date): string {
  * renders `ADMIN_COPY.dashboardEmptyStateHint` for it, structurally distinct
  * from a `{ ok: false }` failure.
  *
- * @returns `{ ok: true, data: DailyBucket[] }` (always a full zero-filled window) on success, or `{ ok: false }` if the read failed.
+ * Gap closure (06-07, CR-01/CR-02): the read now carries an explicit
+ * `.order('created_at', { ascending: false })` and `.limit(VISITOR_ROWS_LIMIT)`
+ * -- without an order, PostgREST's `max_rows` truncation returned an
+ * arbitrary physical-order subset, so whole days vanished nondeterministically.
+ * Ordering newest-first makes any truncation deterministic and recent-biased,
+ * and saturating the limit is now detected and surfaced as `{ ok: false }`
+ * rather than silently rendering a partial series. The per-session-per-day
+ * dedupe key is now `businessDayKey` (America/Chicago), not
+ * `createdAt.slice(0, 10)` (UTC) -- the same key `bucketByDay` uses to
+ * bucket, so a session spanning UTC midnight cannot produce two dedupe keys
+ * (CR-02).
+ *
+ * @returns `{ ok: true, data: DailyBucket[] }` (always a full zero-filled window) on success, or `{ ok: false }` if the read failed or may have been truncated.
  */
 export async function getVisitorSeries(): Promise<DashboardReadResult<DailyBucket[]>> {
     try {
@@ -273,24 +385,42 @@ export async function getVisitorSeries(): Promise<DashboardReadResult<DailyBucke
             .select('created_at, session_id')
             .eq('event_type', ANALYTICS_EVENTS.PAGE_VIEW)
             .gte('created_at', windowStartIso(now))
+            .order('created_at', { ascending: false })
+            .limit(VISITOR_ROWS_LIMIT)
 
         if (error) {
             console.error('getVisitorSeries: Supabase read failed', { error })
             return { ok: false }
         }
 
-        // Gap closure (06-06): collapse to one timestamp per distinct
-        // session per day -- a session that visits 3 pages in one day
-        // contributes 1 timestamp to that day's bucket, not 3. NULL
-        // session_id rows are excluded entirely (see function TSDoc).
+        const rows = data ?? []
+        // Gap closure (06-07, CR-01): a full page of rows means PostgREST's
+        // `max_rows` may have truncated the result -- the chart would then
+        // silently lose whichever days fell outside the returned page. Fail
+        // visibly instead of rendering a possibly-incomplete series.
+        if (rows.length >= VISITOR_ROWS_LIMIT) {
+            console.error('getVisitorSeries: read saturated VISITOR_ROWS_LIMIT, result may be truncated', {
+                limit: VISITOR_ROWS_LIMIT,
+                returned: rows.length,
+            })
+            return { ok: false }
+        }
+
+        // Gap closure (06-06/06-07): collapse to one timestamp per distinct
+        // session per **business day** -- a session that visits 3 pages in
+        // one Chicago day contributes 1 timestamp to that day's bucket, not
+        // 3. NULL session_id rows are excluded entirely (see function
+        // TSDoc). Keying with `businessDayKey` (not `createdAt.slice(0,10)`)
+        // is what prevents a UTC-midnight-spanning session from producing
+        // two dedupe keys (CR-02).
         const firstTimestampBySessionAndDay = new Map<string, string>()
-        for (const row of data ?? []) {
+        for (const row of rows) {
             const sessionId = row.session_id as string | null
             if (sessionId === null) {
                 continue
             }
             const createdAt = row.created_at as string
-            const dayKey = createdAt.slice(0, 10)
+            const dayKey = businessDayKey(createdAt)
             const dedupeKey = `${dayKey}:${sessionId}`
             if (!firstTimestampBySessionAndDay.has(dedupeKey)) {
                 firstTimestampBySessionAndDay.set(dedupeKey, createdAt)
