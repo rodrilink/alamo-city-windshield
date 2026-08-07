@@ -17,13 +17,11 @@ import 'server-only'
 // outage indistinguishable from D-01's legitimate "no data yet" empty state
 // (RESEARCH.md Pitfall 3, T-05-06-07).
 
-import { startOfDay, subDays } from 'date-fns'
-
 import { createClient } from '@/lib/supabase/server'
 import { businessDayKey } from '@/lib/analytics/business-day'
-import { bucketByDay, ANALYTICS_WINDOW_DAYS } from '@/lib/analytics/bucket-by-day'
+import { bucketByDay, ANALYTICS_WINDOW_DAYS, MILLISECONDS_PER_DAY } from '@/lib/analytics/bucket-by-day'
 import { ANALYTICS_EVENTS } from '@/lib/analytics/events'
-import { getBusinessNowParts, getBusinessTodayDateString } from '@/lib/server-time'
+import { getBusinessTodayDateString } from '@/lib/server-time'
 import type { DailyBucket, DashboardReadResult } from '@/types/admin'
 
 /**
@@ -296,24 +294,57 @@ export async function getUpcomingAppointments(): Promise<DashboardReadResult<Upc
 }
 
 /**
- * Derives "now" as a plain `Date` instant from the server-time module's
- * business-timezone parts (`getBusinessNowParts`), rather than calling
- * `new Date()` directly at each call site (T-05-06-05). The instant itself
- * is passed explicitly into `bucketByDay`, matching that function's
- * "clock passed as parameter, never read internally" contract.
+ * Returns the current instant, for passing explicitly into `bucketByDay`
+ * (matching that function's "clock passed as parameter, never read
+ * internally" contract) and into `windowStartIso` below.
+ *
+ * Gap closure (06-07, CR-03): this used to reconstruct a `Date` from
+ * `getBusinessNowParts()`'s America/Chicago wall-clock parts via
+ * `new Date(year, month - 1, day, hour, minute)`. That constructor
+ * interprets its numeric arguments in the **host machine's** timezone, so
+ * feeding Chicago parts into it produced an instant skewed by the
+ * host-Chicago UTC offset -- 5 hours on Vercel, which runs UTC. "Now" as an
+ * *instant* is timezone-independent; only its *rendering* into calendar
+ * parts needs a business timezone, and that rendering now happens
+ * exclusively downstream, through `businessDayKey` (CR-02's fix). Encoding a
+ * timezone into an instant and then treating the result as a real instant is
+ * exactly the anti-pattern `server-time.ts`'s own comments warn against --
+ * this function used to reintroduce it despite its docstring's claim
+ * otherwise.
  */
 function getServerNow(): Date {
-    const { year, month, day, hour, minute } = getBusinessNowParts()
-    return new Date(year, month - 1, day, hour, minute)
+    return new Date()
 }
 
 /**
  * Computes the D-03 window start (`ANALYTICS_WINDOW_DAYS` days back from
- * `now`) as an ISO-8601 instant, for the `.gte('created_at', ...)` filter
- * shared by all three chart-series reads below.
+ * `now`, inclusive of `now`'s own business day) as an ISO-8601 instant, for
+ * the `.gte('created_at', ...)` filter shared by every chart-series read and
+ * the CR-01 visitors reads above.
+ *
+ * Gap closure (06-07, CR-03): previously computed via
+ * `startOfDay(subDays(now, ...))` (`date-fns`), which reads `now`'s
+ * HOST-local calendar day -- on Vercel (UTC) that is not the same calendar
+ * day as `now`'s America/Chicago business day, shifting the window boundary
+ * by up to the host-Chicago UTC offset. The boundary is now derived from
+ * `businessDayKey` (the same America/Chicago day used everywhere else on
+ * this path, CR-02) rather than from a host-local `Date` reconstruction: the
+ * boundary is midnight America/Chicago at the start of the oldest day in the
+ * window, expressed as the exact instant `windowDays - 1` fixed 24h-blocks
+ * before `now`'s business-day start. Concretely, this parses
+ * `businessDayKey(now)` (a `'yyyy-MM-dd'` string) as midnight UTC and steps
+ * back by `(windowDays - 1) * 24h` in milliseconds -- never via host-local
+ * `setDate`/`getDate` (the same class of anti-pattern this function's
+ * previous implementation had). Parsing the day-key as UTC-midnight and
+ * stepping in fixed-size UTC days, rather than parsing it as Chicago
+ * midnight, makes the boundary intentionally slightly earlier than the exact
+ * Chicago-midnight instant (up to the UTC offset) -- an earlier `.gte` bound
+ * only ever WIDENS the window, so no event within the intended window can be
+ * excluded by this approximation.
  */
 function windowStartIso(now: Date): string {
-    return startOfDay(subDays(now, ANALYTICS_WINDOW_DAYS - 1)).toISOString()
+    const oldestDayKey = businessDayKey(new Date(now.getTime() - (ANALYTICS_WINDOW_DAYS - 1) * MILLISECONDS_PER_DAY))
+    return `${oldestDayKey}T00:00:00.000Z`
 }
 
 /**

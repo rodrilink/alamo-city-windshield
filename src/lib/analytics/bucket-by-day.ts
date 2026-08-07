@@ -27,7 +27,14 @@
 import { businessDayKey } from '@/lib/analytics/business-day'
 import type { DailyBucket } from '@/types/admin'
 
-const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000
+/**
+ * Gap closure (06-07, CR-02/CR-03): the fixed-size building block for
+ * host-timezone-independent day arithmetic on this analytics path. Exported
+ * so `dashboard-queries.ts`'s `windowStartIso` (CR-03's fix) can step by the
+ * same unit this module uses for its axis walk, rather than duplicating the
+ * magic number or falling back to `date-fns`' host-local `addDays`/`subDays`.
+ */
+export const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000
 
 /** D-03: length of the trailing window every chart queries, in days. */
 export const ANALYTICS_WINDOW_DAYS = 30
