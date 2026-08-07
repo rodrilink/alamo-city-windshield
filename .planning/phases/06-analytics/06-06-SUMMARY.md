@@ -129,3 +129,45 @@ None. The full static gate (tsc, vitest, lint, build) passed cleanly after every
 ---
 *Phase: 06-analytics*
 *Completed (Tasks 1-5): 2026-08-07 — awaiting Task 6 human checkpoint*
+
+## Task 6: Human Verification — APPROVED (2026-08-07)
+
+The operator approved after the migration was applied and the dashboard re-checked.
+
+### Migration application — deviation from plan
+
+The plan's Task 6 step 0 assumed the operator would paste the migration into the
+Supabase SQL editor. Three attempts did not reach the database (the `42703`
+`column analytics_events.session_id does not exist` error persisted, confirmed
+by direct REST query each time, not inferred from the UI).
+
+Resolution: the Supabase CLI was already authenticated with the project linked
+(`supabase projects list` showed `"linked":true` for `kyhvgskeihtccylpdkas`), so
+`npx supabase db push --linked` applied the migration in seconds. **This should
+have been checked before routing the operator to manual SQL paste.** Record for
+future phases: check `supabase projects list` first — this project has a working
+CLI migration path and does not need hand-pasted DDL.
+
+### Observed evidence (queried directly from the live DB post-approval)
+
+| Metric | Observed |
+|---|---|
+| `page_view` rows | 4 |
+| Rows carrying a `session_id` | 4 (0 NULL) |
+| Distinct paths | `/`, `/about`, `/contact` |
+| **Distinct sessions (the Visitors card)** | **2** |
+
+Under the pre-06-06 code this card would have read **4**. Success criteria 1, 2
+and 3 are met: one session spanning three pages contributes 1, and a second
+session still counts separately (the fix does not collapse traffic into a single
+visitor).
+
+### Success criteria not exercised
+
+- **Criterion 4 (NULL-session exclusion) — NOT exercised against live data.**
+  The 3 pre-migration NULL rows observed before approval are no longer in the
+  table, so every remaining row carries a session_id. The exclusion code path is
+  correct by inspection and unit-tested, but was never proven against real NULL
+  rows.
+- The chart's daily-bucket consistency (plan step 4) and the no-regression sweep
+  (step 5) were not separately reported by the operator.
