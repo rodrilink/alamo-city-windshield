@@ -20,7 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
  (completed 2026-08-06)
 
 - [x] **Phase 5: Admin Backend** - Admin login, protected dashboard with charts, and user management operational (completed 2026-08-06)
-- [ ] **Phase 6: Analytics** - Event tracking wired across all user actions; admin charts powered by real data
+- [x] **Phase 6: Analytics** - Event tracking wired across all user actions; admin charts powered by real data (completed 2026-08-07)
 
 ## Phase Details
 
@@ -230,7 +230,7 @@ Plans:
   3. The admin dashboard charts display data from the `analytics_events` table (visitor count over time, VIN searches over time, contact submissions over time)
   4. Event tracking is fire-and-forget: failing to record an event does not block or error the user action that triggered it
 
-**Plans:** 4/5 plans executed
+**Plans:** 6/6 plans complete
 
 Plans:
 
@@ -246,7 +246,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 06-05-PLAN.md — End-to-end verification that all four events land and both charts populate
+- [x] 06-05-PLAN.md — End-to-end verification that all four events land and both charts populate
 
 ## Progress
 
@@ -260,4 +260,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 3. VIN Estimate | 9/10 | In Progress|  |
 | 4. Booking & Contact | 12/12 | Complete   | 2026-08-06 |
 | 5. Admin Backend | 9/9 | Complete   | 2026-08-06 |
-| 6. Analytics | 4/5 | In Progress|  |
+| 6. Analytics | 6/6 | Complete   | 2026-08-07 |
