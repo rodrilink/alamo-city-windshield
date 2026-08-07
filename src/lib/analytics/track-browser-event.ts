@@ -25,16 +25,25 @@ import type { AnalyticsEventType } from '@/lib/analytics/events'
  * No `vin` parameter -- the only browser-side event is `page_view` (D-05),
  * which carries a pathname, never a VIN.
  *
+ * Gap closure (06-06): `fields.sessionId` is optional so the signature stays
+ * backward compatible. When present it is written to the row's `session_id`
+ * column, letting the dashboard count distinct sessions instead of raw
+ * page_view rows (`src/lib/dashboard/dashboard-queries.ts`). When absent or
+ * `null` (storage unavailable -- `src/lib/analytics/session-id.ts`), the row
+ * is written with `session_id` NULL and is deliberately excluded from that
+ * distinct-session count rather than inflating it.
+ *
  * @param eventType - One of `ANALYTICS_EVENTS`'s four members (D-04); in practice only `PAGE_VIEW` today.
- * @param fields - Optional `page`, the pathname to record (D-02).
+ * @param fields - Optional `page`, the pathname to record (D-02), and optional `sessionId` for distinct-session counting.
  * @returns Always resolves; never rejects and never carries a failure signal.
  */
-export async function trackBrowserEvent(eventType: AnalyticsEventType, fields?: { page?: string }): Promise<void> {
+export async function trackBrowserEvent(eventType: AnalyticsEventType, fields?: { page?: string; sessionId?: string | null }): Promise<void> {
     try {
         const supabase = createClient()
         await supabase.from('analytics_events').insert({
             event_type: eventType,
             page: fields?.page ?? null,
+            session_id: fields?.sessionId ?? null,
         })
     } catch {
         // D-12: browser-side tracking failures are swallowed entirely -- no
