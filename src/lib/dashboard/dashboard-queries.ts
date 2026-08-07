@@ -41,13 +41,30 @@ export const UPCOMING_APPOINTMENTS_LIMIT = 10
 /**
  * Four card totals for the dashboard summary row (ADMIN-05), mixed-source
  * per D-02: `contacts` and `bookings` are real-table counts (Phase 4 already
- * writes real rows there); `visitors` and `vinSearches` count
- * `analytics_events` rows, written by Phase 6 via
- * `src/lib/analytics/track-event.ts`. Every count uses
+ * writes real rows there); `vinSearches` counts `analytics_events` rows via
  * `select('*', { count: 'exact', head: true })` so only the count crosses
- * the wire, never row data. A real `0` remains a legitimate empty state
- * (e.g. no visitors yet today) that stays structurally distinct from a
- * `{ ok: false }` failure -- never fabricate or estimate a number (D-02).
+ * the wire, never row data.
+ *
+ * Gap closure (06-06): `visitors` counts **distinct browser sessions**, not
+ * `page_view` rows -- a single visitor browsing N pages in one session
+ * increments this by exactly 1, not N. `head: true` cannot express DISTINCT,
+ * so this one count instead selects `session_id` for `page_view` rows and
+ * counts unique non-null values in TypeScript (row data crosses the wire for
+ * this count only). A new browser tab, or the same person returning later,
+ * is a new session and counts again -- this is a *session* count, not a
+ * unique-people count. Rows with `session_id IS NULL` (written before this
+ * plan, or by visitors whose `sessionStorage` was unavailable -- see
+ * `src/lib/analytics/session-id.ts`) are excluded from the distinct count:
+ * counting each NULL row as its own session would resurrect the exact
+ * page-views-as-visitors bug this plan fixes, and collapsing all NULLs into
+ * one session would invent a visitor that does not exist. Exclusion
+ * undercounts slightly and never inflates -- the safe direction for a number
+ * an owner makes decisions on. `getVisitorSeries` below applies the identical
+ * rule for the chart.
+ *
+ * A real `0` remains a legitimate empty state (e.g. no visitors yet today)
+ * that stays structurally distinct from a `{ ok: false }` failure -- never
+ * fabricate or estimate a number (D-02).
  */
 export interface SummaryTotals {
     contacts: number
@@ -68,10 +85,14 @@ export async function getSummaryTotals(): Promise<DashboardReadResult<SummaryTot
     try {
         const supabase = await createClient()
 
-        const [contactsResult, bookingsResult, visitorsResult, vinSearchesResult] = await Promise.all([
+        const [contactsResult, bookingsResult, visitorSessionsResult, vinSearchesResult] = await Promise.all([
             supabase.from('contacts').select('*', { count: 'exact', head: true }),
             supabase.from('bookings').select('*', { count: 'exact', head: true }),
-            supabase.from('analytics_events').select('*', { count: 'exact', head: true }).eq('event_type', ANALYTICS_EVENTS.PAGE_VIEW),
+            // Gap closure (06-06): `head: true` cannot express DISTINCT, so
+            // this one count selects `session_id` for `page_view` rows and
+            // is reduced to a distinct-session count below (see SummaryTotals
+            // TSDoc for the full NULL-exclusion rationale).
+            supabase.from('analytics_events').select('session_id').eq('event_type', ANALYTICS_EVENTS.PAGE_VIEW),
             supabase.from('analytics_events').select('*', { count: 'exact', head: true }).eq('event_type', ANALYTICS_EVENTS.VIN_SEARCH),
         ])
 
@@ -83,8 +104,8 @@ export async function getSummaryTotals(): Promise<DashboardReadResult<SummaryTot
             console.error('getSummaryTotals: bookings count failed', { error: bookingsResult.error })
             return { ok: false }
         }
-        if (visitorsResult.error) {
-            console.error('getSummaryTotals: visitors count failed', { error: visitorsResult.error })
+        if (visitorSessionsResult.error) {
+            console.error('getSummaryTotals: visitors count failed', { error: visitorSessionsResult.error })
             return { ok: false }
         }
         if (vinSearchesResult.error) {
@@ -92,12 +113,19 @@ export async function getSummaryTotals(): Promise<DashboardReadResult<SummaryTot
             return { ok: false }
         }
 
+        // Gap closure (06-06): distinct, non-null session_id values only --
+        // NULL rows (pre-migration or storage-unavailable) are excluded, not
+        // collapsed into one phantom session. See SummaryTotals TSDoc.
+        const distinctSessionIds = new Set(
+            (visitorSessionsResult.data ?? []).map((row) => row.session_id as string | null).filter((sessionId): sessionId is string => sessionId !== null)
+        )
+
         return {
             ok: true,
             data: {
                 contacts: contactsResult.count ?? 0,
                 bookings: bookingsResult.count ?? 0,
-                visitors: visitorsResult.count ?? 0,
+                visitors: distinctSessionIds.size,
                 vinSearches: vinSearchesResult.count ?? 0,
             },
         }
@@ -222,11 +250,16 @@ function windowStartIso(now: Date): string {
 /**
  * Reads the ADMIN-02 visitor-traffic chart series: `analytics_events` rows
  * whose `event_type` is a page view, over the trailing `ANALYTICS_WINDOW_DAYS`
- * window, bucketed into daily counts by `bucketByDay`. Phase 6 now writes
- * these rows via `src/lib/analytics/track-event.ts`'s `trackBrowserEvent`;
- * a genuinely empty window (e.g. no visitors yet today) remains a legitimate
- * empty result -- the page renders `ADMIN_COPY.dashboardEmptyStateHint` for
- * it, structurally distinct from a `{ ok: false }` failure.
+ * window, reduced to one timestamp per distinct session per day and then
+ * bucketed into daily counts by `bucketByDay`, so each session contributes at
+ * most 1 to its day's bucket -- matching `getSummaryTotals`'s distinct-session
+ * KPI (gap closure 06-06). Rows with `session_id IS NULL` (pre-migration or
+ * storage-unavailable, per `src/lib/analytics/session-id.ts`) are excluded
+ * from this count for the same reason stated on `SummaryTotals.visitors`:
+ * exclusion undercounts rather than inflates. A genuinely empty window (e.g.
+ * no visitors yet today) remains a legitimate empty result -- the page
+ * renders `ADMIN_COPY.dashboardEmptyStateHint` for it, structurally distinct
+ * from a `{ ok: false }` failure.
  *
  * @returns `{ ok: true, data: DailyBucket[] }` (always a full zero-filled window) on success, or `{ ok: false }` if the read failed.
  */
@@ -237,7 +270,7 @@ export async function getVisitorSeries(): Promise<DashboardReadResult<DailyBucke
 
         const { data, error } = await supabase
             .from('analytics_events')
-            .select('created_at')
+            .select('created_at, session_id')
             .eq('event_type', ANALYTICS_EVENTS.PAGE_VIEW)
             .gte('created_at', windowStartIso(now))
 
@@ -246,7 +279,25 @@ export async function getVisitorSeries(): Promise<DashboardReadResult<DailyBucke
             return { ok: false }
         }
 
-        const timestamps = (data ?? []).map((row) => row.created_at as string)
+        // Gap closure (06-06): collapse to one timestamp per distinct
+        // session per day -- a session that visits 3 pages in one day
+        // contributes 1 timestamp to that day's bucket, not 3. NULL
+        // session_id rows are excluded entirely (see function TSDoc).
+        const firstTimestampBySessionAndDay = new Map<string, string>()
+        for (const row of data ?? []) {
+            const sessionId = row.session_id as string | null
+            if (sessionId === null) {
+                continue
+            }
+            const createdAt = row.created_at as string
+            const dayKey = createdAt.slice(0, 10)
+            const dedupeKey = `${dayKey}:${sessionId}`
+            if (!firstTimestampBySessionAndDay.has(dedupeKey)) {
+                firstTimestampBySessionAndDay.set(dedupeKey, createdAt)
+            }
+        }
+
+        const timestamps = Array.from(firstTimestampBySessionAndDay.values())
         return { ok: true, data: bucketByDay(timestamps, now, ANALYTICS_WINDOW_DAYS) }
     } catch (error) {
         console.error('getVisitorSeries: unexpected error', { error })
