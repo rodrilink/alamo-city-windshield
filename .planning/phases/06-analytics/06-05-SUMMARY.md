@@ -3,14 +3,14 @@ phase: 06-analytics
 plan: 05
 subsystem: analytics
 tags: [verification, uat, supabase, analytics]
-status: partial
+status: complete
 
 requires:
   - phase: 06-analytics
     provides: "All four event producers from plans 06-01 through 06-04"
 provides:
   - "Static gate results and write-site census for Phase 6"
-  - "Partial runtime evidence: page_view and contact_submit confirmed landing; vin_search and booking_created NOT exercised"
+  - "Runtime evidence: all four event types confirmed landing in analytics_events, including the D-15 two-branch VIN check"
 affects: []
 
 tech-stack:
@@ -18,12 +18,16 @@ tech-stack:
   patterns: []
 ---
 
-# 06-05: End-to-End Analytics Verification — PARTIAL
+# 06-05: End-to-End Analytics Verification — COMPLETE
 
-**Status: PARTIAL.** Task 1 (static gate + census) passed in full. Task 2 (human
-runtime verification) was **interrupted mid-run** when the operator found the
-Visitors KPI defect that became plan 06-06. Two of the four event types were
-never exercised. Task 3's consolidated write-up is superseded by this record.
+**Status: COMPLETE.** All four event types are confirmed landing at runtime.
+
+Read this document in order: the "Task 2" section below records the *interrupted
+first attempt* (halted when the operator found the Visitors KPI defect that
+became plan 06-06) and is kept for the audit trail. **The
+"VERIFICATION COMPLETED" section at the bottom is the authoritative result** and
+supersedes the partial findings above it. Three checks remain unexercised and
+are listed there.
 
 ## Task 1: Static gate and write-site census — PASSED
 
@@ -48,7 +52,11 @@ Call sites: `api/vin/[vin]/route.ts:71` and `:156` (VIN_SEARCH, both success
 branches), `PageViewTracker.tsx:45` (PAGE_VIEW), `booking-actions.ts:121`
 (BOOKING_CREATED), `contact-actions.ts:73` (CONTACT_SUBMIT).
 
-## Task 2: Human runtime verification — PARTIAL
+## Task 2: Human runtime verification — FIRST ATTEMPT (superseded below)
+
+> **Historical record.** The table and gap list in this section reflect the state
+> partway through verification. See "VERIFICATION COMPLETED" at the bottom of
+> this file for the final result — all four event types passed.
 
 Interrupted when the operator reported the Visitors KPI reading 1 → 2 → 3 across
 Home → About → Contact. That defect was triaged and fixed in plan 06-06.
