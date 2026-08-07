@@ -110,3 +110,73 @@ and confirm both charts populate.
 - `metadata` is `null` on every row this phase writes (D-02).
 - Failed VIN searches (`not-found`, `unreachable`) are deliberately untracked
   (D-14).
+
+---
+
+## VERIFICATION COMPLETED — 2026-08-07 (supersedes the PARTIAL status above)
+
+All four event types confirmed landing in `analytics_events`, verified by direct
+service-role queries against the live database (`kyhvgskeihtccylpdkas`), not by
+self-report.
+
+| Event type | Rows | Verdict |
+|---|---|---|
+| `page_view` | 1 (1 distinct session, `page: "/"`) | PASS |
+| `vin_search` | 4 | PASS |
+| `contact_submit` | 1 (matching `contacts` row) | PASS |
+| `booking_created` | 1 (matching `bookings` row) | PASS |
+
+### D-15 — two-branch VIN check (the phase's highest-risk item): PASS
+
+The same VIN submitted twice produced **two** `vin_search` rows, confirming BOTH
+success branches fire — the fresh NHTSA decode (`route.ts:156`) and the
+`vin_cache` early-return (`route.ts:71`). Proven independently twice:
+
+| # | VIN | Timestamp | Source |
+|---|---|---|---|
+| 1 | `5XYP54HC8MG109196` | 20:50:13Z | operator, browser |
+| 2 | `5XYP54HC8MG109196` | 20:50:48Z | operator, browser (cache hit) |
+| 3 | `1HGCM82633A004352` | 20:53:46Z | curl against the Route Handler |
+| 4 | `1HGCM82633A004352` | 20:53:49Z | curl (cache hit) |
+
+Had only one branch been wired, the ADMIN-04 chart would have *dropped* as
+caching improved — a silent failure. It does not.
+
+### D-14 — invalid VIN: PASS
+`00000000000000000` returned the manual-entry path and wrote **no** row.
+
+### D-04 — taxonomy closed: PASS
+Exactly four `event_type` values exist; no fifth appeared.
+
+### Visitors KPI (06-06): PASS
+Operator confirmed the card renders correctly. Every `page_view` row carries a
+`session_id`; the card counts distinct sessions.
+
+### Still NOT verified — carried forward
+
+- **D-11 honeypot check.** A honeypot-filled contact submission must write
+  neither a `contact_submit` row nor a `contacts` row. Never exercised — it
+  requires un-hiding a hidden input via DevTools. The code path is confirmed by
+  static inspection (`06-04-SUMMARY.md` records both honeypot early-returns as
+  eventless) but has no runtime proof.
+- **D-11 duplicate-booking check.** Re-booking a taken slot must write no
+  `booking_created` row. Not exercised.
+- **NULL-session exclusion against real data.** All current rows carry a
+  session_id, so the exclusion branch never ran against live NULL rows. It is
+  unit-tested and correct by inspection.
+
+### Investigation note — a false alarm worth recording
+
+Mid-verification the `page_view` rows read 0 and a raw-`fetch` probe returned
+`42501 new row violates row-level security policy`, which was briefly reported as
+an RLS defect. **That was wrong.** `pg_policies` confirms `public_insert_analytics`
+(INSERT, role `public`, `WITH CHECK (true)`) is intact, and an insert through
+`@supabase/supabase-js` with the anon key **succeeds**. The probe itself was
+malformed. Lesson: reproduce through the application's real client path before
+concluding a live-infrastructure defect exists.
+
+### Test data left in the live database
+
+The verification deliberately created real rows (accepted threat T-06-05-01):
+1 `contacts` row, and **1 `bookings` row occupying a real appointment slot** —
+the owner should remove that booking. Plus 7 `analytics_events` rows.
