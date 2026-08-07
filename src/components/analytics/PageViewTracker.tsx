@@ -7,9 +7,17 @@
 // so this component never mounts on admin traffic.
 //
 // D-08: the dedupe key is path + session, so Home -> About -> Home writes
-// two rows, not three. Consequence: the dashboard's "Total Visitors" card
-// counts distinct page-visits per session, not unique people -- do not let
-// any future copy describe it as unique visitors.
+// two rows, not three -- this still governs which ROWS get written. It does
+// NOT govern what the dashboard counts. Gap closure (06-06): the Visitors
+// KPI and chart count distinct `session_id` values (see
+// `src/lib/dashboard/dashboard-queries.ts`), so N pages visited in one
+// session contribute exactly 1 visitor, not N -- the "Total Visitors" card
+// no longer counts page-visits. Surviving caveat: a new browser tab, or the
+// same person returning later, is a new session and counts again -- this is
+// a *session* count, not a unique-people count. Rows written before this
+// column existed (`session_id IS NULL`) are excluded from that count, not
+// collapsed into one phantom session (see session-id.ts and
+// dashboard-queries.ts for the full rationale).
 //
 // D-07: being client-side is itself the bot filter. There is no
 // user-agent-based filtering here by design -- UA strings are trivially
