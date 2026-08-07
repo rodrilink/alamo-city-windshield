@@ -19,7 +19,7 @@
 
 import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
-import { trackBrowserEvent } from '@/lib/analytics/track-event'
+import { trackBrowserEvent } from '@/lib/analytics/track-browser-event'
 import { ANALYTICS_EVENTS } from '@/lib/analytics/events'
 
 const SESSION_STORAGE_PREFIX = 'pv:'
