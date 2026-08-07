@@ -8,6 +8,8 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { contactSchema } from '@/lib/contact/contact-schema'
 import { CONTACT_COPY, BUSINESS } from '@/lib/constants'
+import { trackServerEvent } from '@/lib/analytics/track-event'
+import { ANALYTICS_EVENTS } from '@/lib/analytics/events'
 import type { ContactActionState, ContactFormValues } from '@/types/booking'
 
 /**
@@ -64,6 +66,11 @@ export async function createContact(prevState: ContactActionState, formData: For
             console.error('createContact: insert failed', { error })
             return { status: 'error', values, message: `${CONTACT_COPY.genericErrorMessage} ${BUSINESS.phone}` }
         }
+
+        // D-11: fires only on this confirmed-insert path. The honeypot
+        // early-return above is deliberately eventless -- do not add an
+        // event there when "completing" the other success return.
+        await trackServerEvent(ANALYTICS_EVENTS.CONTACT_SUBMIT)
 
         return { status: 'success', values }
     } catch (error) {
