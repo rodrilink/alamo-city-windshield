@@ -230,7 +230,7 @@ Plans:
   3. The admin dashboard charts display data from the `analytics_events` table (visitor count over time, VIN searches over time, contact submissions over time)
   4. Event tracking is fire-and-forget: failing to record an event does not block or error the user action that triggered it
 
-**Plans:** 1/5 plans executed
+**Plans:** 4/5 plans executed
 
 Plans:
 
@@ -240,9 +240,9 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 06-02-PLAN.md — PageViewTracker client component mounted in the public layout (ANLY-02)
-- [ ] 06-03-PLAN.md — vin_search in both success branches of the VIN route (ANLY-03, D-15)
-- [ ] 06-04-PLAN.md — contact_submit + booking_created in the two Server Actions (ANLY-04/05, D-11)
+- [x] 06-02-PLAN.md — PageViewTracker client component mounted in the public layout (ANLY-02)
+- [x] 06-03-PLAN.md — vin_search in both success branches of the VIN route (ANLY-03, D-15)
+- [x] 06-04-PLAN.md — contact_submit + booking_created in the two Server Actions (ANLY-04/05, D-11)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -260,4 +260,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 3. VIN Estimate | 9/10 | In Progress|  |
 | 4. Booking & Contact | 12/12 | Complete   | 2026-08-06 |
 | 5. Admin Backend | 9/9 | Complete   | 2026-08-06 |
-| 6. Analytics | 1/5 | In Progress|  |
+| 6. Analytics | 4/5 | In Progress|  |
