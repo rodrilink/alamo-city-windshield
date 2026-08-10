@@ -50,7 +50,11 @@ supabase/.branches/
 # Agent worktree scratch. Note there is NO leading dot on `worktrees` —
 # `.claude/.worktrees/` matches nothing. 25 files were accidentally
 # committed under the real path in 2a17aa7 before this rule was corrected.
-# Keep `.claude/settings.json` and `settings.local.json` tracked.
 .claude/worktrees/
-.claude/settings.json
+
+# `settings.local.json` is per-machine Claude Code state (Bash permission
+# allowlists) — it does not belong in a public repo and would otherwise show
+# as a permanently modified file. Untracked via `git rm --cached`; the local
+# copy is kept. `settings.json` IS tracked deliberately: it is the shared
+# project config every contributor should get.
 .claude/settings.local.json
