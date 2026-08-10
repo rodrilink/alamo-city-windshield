@@ -15,9 +15,36 @@ const spaceGrotesk = Space_Grotesk({
   display: 'swap',
 })
 
+// `metadataBase` is what turns relative asset paths in Open Graph / Twitter
+// metadata into the absolute URLs those scrapers require -- without it, Next.js
+// warns at build time and social previews resolve against localhost.
+//
+// Sourced from NEXT_PUBLIC_SITE_URL so it follows the deployment rather than
+// being hardcoded. The localhost fallback keeps `npm run dev` working; it is
+// only ever wrong in the harmless direction, since a preview scraper never
+// reaches a developer's machine.
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+
+const SITE_NAME = 'Alamo City Windshield Repair'
+const SITE_DESCRIPTION = 'Professional windshield repair and replacement in San Antonio, TX'
+
 export const metadata: Metadata = {
-  title: 'Alamo City Windshield Repair',
-  description: 'Professional windshield repair and replacement in San Antonio, TX',
+  metadataBase: new URL(SITE_URL),
+  title: SITE_NAME,
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+  },
 }
 
 export default function RootLayout({
