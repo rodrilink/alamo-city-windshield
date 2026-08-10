@@ -12,21 +12,28 @@ Users can enter their VIN, instantly see a windshield replacement estimate for t
 
 ### Validated
 
-(None yet — ship to validate)
+- ✓ Landing page with full-page snap scroll (hero image → estimate section) — v1.0
+- ✓ VIN decoder integration via external API (year, make, model, windshield type) — v1.0 (NHTSA vPIC through a server-side proxy with 6s timeout, `vin_cache`, and a manual fallback)
+- ✓ Formula-based windshield estimate (base price + modifiers for vehicle size, windshield type, ADAS calibration) — v1.0
+- ✓ Appointment booking with visual calendar showing available slots — v1.0 (race-safe via a `UNIQUE (appt_date, appt_time)` constraint, not check-then-insert)
+- ✓ About page with company mission, vision, and information — v1.0
+- ✓ Contact form (name, last name, phone, optional address) with VIN search — v1.0 (honeypot-protected; runtime-verified to write nothing on a bot submission)
+- ✓ Admin login via Supabase Auth — v1.0 (`@supabase/ssr`, `getUser()` in middleware, fails closed if env is unset)
+- ✓ Admin dashboard with charts (visitors, contacts, VIN searches) — v1.0
+- ✓ Admin user management (add/remove users with login access) — v1.0 (last-admin-removal guard, race-narrowed not race-free)
+- ✓ Responsive design with white/red/black color palette — v1.0
+- ✓ Top navigation: Home, About, Contact, Admin — v1.0
 
 ### Active
 
-- [ ] Landing page with full-page snap scroll (hero image → estimate section)
-- [ ] VIN decoder integration via external API (year, make, model, windshield type)
-- [ ] Formula-based windshield estimate (base price + modifiers for vehicle size, windshield type, ADAS calibration)
-- [ ] Appointment booking with visual calendar showing available slots
-- [ ] About page with company mission, vision, and information
-- [ ] Contact form (name, last name, phone, optional address) with VIN search
-- [ ] Admin login via Supabase Auth
-- [ ] Admin dashboard with charts (visitors, contacts, VIN searches)
-- [ ] Admin user management (add/remove users with login access)
-- [ ] Responsive design with white/red/black color palette
-- [ ] Top navigation: Home, About, Contact, Admin
+(None — v1.0 shipped. Next milestone's requirements are defined by `/gsd:new-milestone`.)
+
+Carried forward as known work, not yet scoped into requirements:
+
+- [ ] Replace placeholder marketing copy — "since 2020" founding year and three invented testimonials
+- [ ] Verify Phase 02 (the only phase with no VERIFICATION.md artifact)
+- [ ] Close open review warnings WR-01, WR-03, WR-04 (analytics robustness), WR-06 (misleading comment)
+- [ ] Add component-test infrastructure — all 135 tests are currently pure-function
 
 ### Out of Scope
 
@@ -81,21 +88,45 @@ This document evolves at phase transitions and milestone boundaries.
 
 ## Current State
 
-**Phase 5 complete (2026-08-06) — admin backend.** 5 of 6 phases done; 39/40 plans.
+**v1.0 SHIPPED 2026-08-10.** All 6 phases complete; 47/47 plans. Milestone audit
+`passed` — 63/63 requirements, 23/23 cross-phase integrations, 5/5 E2E flows.
 
-Working and human-verified end to end: `/admin/login` with cookie-based Supabase SSR
-auth, middleware guarding every `/admin/*` route, the `(dashboard)` sidebar shell, the
-`/admin` dashboard (4 summary cards, 3 time-series charts, 2 read-only tables), and
-`/admin/users` add/remove with both D-10 safety guards (self-delete and last-admin)
-enforced server-side and confirmed refusing live.
+**Live:** https://alamo-city-windshield.vercel.app/
+**Repository:** https://github.com/rodrilink/alamo-city-windshield (public)
+**Supabase project:** `kyhvgskeihtccylpdkas` (RLS enabled on all four tables)
 
-Repo gates on `master`: `tsc` 0, 115/115 vitest tests, lint clean, build 12/12 pages.
+Verified in production, not self-reported: all public routes return 200; `/admin`
+correctly returns `307 → /admin/login` when unauthenticated; a live VIN decode of a
+2003 Honda Accord returns a full estimate and wrote a real `vin_search` row to
+`analytics_events`.
 
-**Carried into Phase 6:** the visitors (ADMIN-02) and VIN-search (ADMIN-04) charts
-render a "Tracking starts in Phase 6" empty state — nothing writes `analytics_events`
-rows with `event_type` `'page_view'` / `'vin_search'` yet. Phase 6 owns that producer
-and **must reconcile its emitted literals against `dashboard-queries.ts`**, or those two
-charts stay silently empty rather than erroring.
+Repo gates on `master`: `tsc` 0, **135/135 vitest tests across 15 files**, lint clean,
+build 12/12 pages — all passing under both `TZ=UTC` and `TZ=America/Chicago`.
+
+### What v1.0 proved about this codebase
+
+Three separate times, work was "complete and fully green" before it was actually
+right — each caught by human use or adversarial review, never by static checks:
+
+1. The Visitors KPI counted page views as people (one visitor browsing three pages
+   read as 3). Found by human UAT.
+2. The fix for that then would have silently frozen at Supabase's `max_rows = 1000`
+   cap — PostgREST returns HTTP 200 with a truncated body, so no error fires. Found
+   by code review.
+3. Two timezone defects double-counted sessions crossing UTC midnight and skewed the
+   analytics window by 5 hours on Vercel — invisible on a Chicago-set dev machine.
+4. A missing Supabase env var would have served every `/admin/*` route
+   **unauthenticated with no error and no log**. Found by the milestone audit, fixed
+   before the first deploy.
+
+**Lesson for the next milestone:** the failure mode in this project is silent
+wrongness, not crashes. Green gates are necessary and not sufficient — runtime
+verification against live data, and testing under the production timezone, caught
+everything that mattered.
+
+**Deferred, tracked in `MILESTONES.md`:** placeholder marketing copy retained by
+owner decision; Phase 02 has no VERIFICATION.md; four open review warnings; no
+component-test infrastructure; one verification booking occupying a real slot.
 
 ---
-*Last updated: 2026-08-06 after Phase 5 completion*
+*Last updated: 2026-08-10 after v1.0 milestone*
