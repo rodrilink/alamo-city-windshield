@@ -121,6 +121,7 @@ None yet.
 | 260809-f01 | Wire NEXT_PUBLIC_SITE_URL into metadataBase + Open Graph (was declared but unused) | 2026-08-09 | 1231c7f | — (fast) |
 | 260809-f02 | Swap home background images: hero → windshield technician, estimate → SUV | 2026-08-09 | 8465a6c | — (fast) |
 | 260809-f03 | Fix snap-scroll lock on estimate section (overscroll-contain captured the wheel) | 2026-08-09 | 862f4c4 | — (fast) |
+| 260809-f04 | Enlarge and center the booking calendar (sm-gated --cell-size override) | 2026-08-09 | 7e14151 | — (fast) |
 
 ## Session Continuity
 

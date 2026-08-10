@@ -1,5 +1,5 @@
 ---
-status: pending
+status: resolved
 created: 2026-08-06
 source: 04-08-SUMMARY.md (Phase 4 UAT)
 type: ui-polish
@@ -39,3 +39,31 @@ the wrapper/container over editing the generated primitive.
   calendar makes this regression *more* likely, so re-test the short viewport
   after any sizing change.
 - White/red/black brand palette
+
+---
+
+## Resolved 2026-08-09 — commit `7e14151`
+
+Raised `--cell-size` from the shadcn default `--spacing(7)` (~28px) to
+`--spacing(11)` (~44px) and centered the grid with `mx-auto w-fit`.
+
+**Why this approach:** every internal dimension in `components/ui/calendar.tsx`
+(day cells, nav buttons, header height, weekday row) derives from that single
+CSS variable, so overriding it via `className` scales the whole grid
+proportionally. The generated shadcn primitive was not edited, per this todo's
+own guidance. `cn()` appends the incoming `className` after the default, so the
+override wins.
+
+**Constraint respected — 03-UAT test 14 / D-20.** This todo flagged that a
+larger calendar makes the short-viewport clipping regression *more* likely. The
+scale-up is therefore gated behind `sm:`: below 640px the calendar keeps its
+original compact size, so the worst case for vertical space is byte-identical to
+what that test verified. Confirmed the rule is emitted inside the `.sm\:` block
+of the CSS bundle rather than applying unconditionally.
+
+Side benefit: 44px clears the minimum touch-target size, which the 28px default
+did not.
+
+**Not verified by me:** how the larger grid actually looks and feels in a
+browser. Sizing is a visual judgement — worth a look on both desktop and a short
+mobile viewport.
