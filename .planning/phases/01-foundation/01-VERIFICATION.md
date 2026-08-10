@@ -1,7 +1,7 @@
 ---
 phase: 01-foundation
 verified: 2026-04-12T22:00:00Z
-status: human_needed
+status: passed
 score: 18/20 must-haves verified
 overrides_applied: 0
 human_verification:
@@ -185,3 +185,38 @@ No code gaps. All codebase deliverables for Phase 1 are present, substantive, an
 
 _Verified: 2026-04-12T22:00:00Z_
 _Verifier: Claude (gsd-verifier)_
+
+---
+
+## Human Verification Items CLOSED — 2026-08-09
+
+Both outstanding `human_needed` items are satisfied. Verified directly, not self-reported.
+
+**1. Push migration to live Supabase database — PASS.**
+Project `kyhvgskeihtccylpdkas` is live. All four tables exist and every one has
+RLS enabled, confirmed via `pg_tables`:
+
+| Table | Exists | `rowsecurity` |
+|---|---|---|
+| `bookings` | yes | true |
+| `contacts` | yes | true |
+| `analytics_events` | yes | true |
+| `vin_cache` | yes | true |
+
+Migrations are applied through the Supabase CLI (`npx supabase db push --linked`);
+`supabase migration list --linked` shows both migrations present locally and remotely.
+
+**2. Vercel live deployment — PASS.**
+Deployed at **https://alamo-city-windshield.vercel.app/** from the public repo
+https://github.com/rodrilink/alamo-city-windshield.
+
+| Route | Result |
+|---|---|
+| `/`, `/about`, `/contact`, `/book`, `/admin/login` | HTTP 200 |
+| `/admin` (unauthenticated) | 307 → `/admin/login` |
+
+A production VIN decode returned a full estimate and wrote a real `vin_search`
+row to `analytics_events`, proving the deployed app reaches both NHTSA and
+Supabase.
+
+FDN-06 is therefore satisfied; see `.planning/milestones/v1.0-MILESTONE-AUDIT.md`.

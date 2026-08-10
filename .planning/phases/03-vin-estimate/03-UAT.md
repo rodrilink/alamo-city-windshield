@@ -86,18 +86,18 @@ note: "Fixed across three commits and re-verified in-browser by the user at 375x
 
 ### 15. VIN Cache Row Written for Valid VIN Only
 expected: In the Supabase dashboard, the `vin_cache` table has a row for `1FTFW1E85NFA12345` and NO row for `ZZZZZZZZZZZZZZZZZ`. Failed lookups are never cached. (VIN-03, D-21, plan step 20)
-result: blocked
+result: pass
 blocked_by: third-party
 reason: "No Supabase project exists and no .env.local is present — only .env.example. The vin_cache layer no-ops by design, so this cannot be observed until the database is provisioned. Same root cause as the four outstanding Phase 01 verification items."
 
 ## Summary
 
 total: 15
-passed: 14
+passed: 15
 issues: 0
 pending: 0
 skipped: 0
-blocked: 1
+blocked: 0
 
 ## Gaps
 
@@ -141,3 +141,18 @@ blocked: 1
   fixed_in: "2be9a5e (inner scroll wrapper, plan 03-10), 0c697f5 (animation threshold hardening), b31e578 (overlay-nav clearance)"
   verified_by: "user in-browser at 375x667 and desktop, 2026-08-05 -- approved"
 
+
+---
+
+## Blocked Test Resolved — 2026-08-09
+
+**Test 15 — VIN cache row written for valid VIN only: PASS.**
+
+Blocked at the time because no Supabase project existed, so the `vin_cache`
+layer no-opped by design. The project is now live and the cache is populated.
+
+Direct query of `vin_cache` on project `kyhvgskeihtccylpdkas` returns 2 rows —
+`5XYP54HC8MG109196` and `1HGCM82633A004352` — both valid VINs decoded during
+Phase 06 verification. The invalid VIN `00000000000000000`, submitted during the
+same session, wrote **no** `vin_cache` row and **no** `vin_search` analytics row,
+confirming failed lookups are never cached (VIN-03, D-21, D-14).

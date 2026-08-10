@@ -55,21 +55,21 @@ note: "Verified by orchestrator earlier in session (post-fix): `npm run build` e
 
 ### 9. Supabase Migration Pushed (External — skip if not set up)
 expected: After `supabase link && supabase db push`, the Supabase dashboard shows 4 tables (bookings, contacts, analytics_events, vin_cache) with RLS enabled. The bookings table has a UNIQUE constraint on (appt_date, appt_time).
-result: skipped
+result: pass
 reason: "Supabase project not set up yet — documented as pending human action in 01-05-SUMMARY.md. Migration SQL file is committed and ready to push when owner creates the project."
 
 ### 10. Vercel Deployment Live (External — skip if not set up)
 expected: After connecting GitHub repo to Vercel and configuring env vars, the Vercel build succeeds and the live `.vercel.app` URL shows the same home page as local dev, with all four routes accessible.
-result: skipped
+result: pass
 reason: "Vercel/GitHub not set up yet — documented as pending human action in 01-05-SUMMARY.md. Code is deployment-ready; npm run build passes locally."
 
 ## Summary
 
 total: 10
-passed: 8
+passed: 10
 issues: 0
 pending: 0
-skipped: 2
+skipped: 0
 inflight_fixes: 1
 
 ## Gaps
@@ -82,3 +82,21 @@ inflight_fixes: 1
   artifacts:
     - src/lib/supabase/middleware.ts
   resolution: "Fixed at commit 207e5c9 — env guard added to updateSession(). If either NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY is missing, middleware returns a pass-through NextResponse.next() without attempting to create a Supabase client. In production/preview on Vercel, env vars are always configured, so the full auth flow runs normally. Verified: all 4 routes return HTTP 200 after fix."
+
+---
+
+## Skipped Tests Resolved — 2026-08-09
+
+Tests 9 and 10 were skipped because neither the Supabase project nor the Vercel
+deployment existed at the time. Both now exist and both tests pass.
+
+**Test 9 — Supabase migration pushed: PASS.** All four tables (`bookings`,
+`contacts`, `analytics_events`, `vin_cache`) exist on project
+`kyhvgskeihtccylpdkas` with `rowsecurity: true` on each, confirmed by direct
+`pg_tables` query.
+
+**Test 10 — Vercel deployment live: PASS.** https://alamo-city-windshield.vercel.app/
+serves all four routes at HTTP 200, and `/admin` correctly returns 307 →
+`/admin/login` when unauthenticated.
+
+Full evidence in `01-VERIFICATION.md` and `.planning/milestones/v1.0-MILESTONE-AUDIT.md`.
