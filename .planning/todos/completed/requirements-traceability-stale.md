@@ -1,5 +1,5 @@
 ---
-status: pending
+status: resolved
 created: 2026-08-06
 source: 04-VERIFICATION.md (informational finding) + phase.complete warning
 type: docs
@@ -33,3 +33,21 @@ going forward. The latter is preferable — a hand-backfilled table will drift
 again at Phase 5.
 
 Cosmetic only: no code, test, or database behavior depends on this table.
+
+
+---
+
+## Resolved 2026-08-09
+
+Obsolete: `.planning/REQUIREMENTS.md` no longer exists. It was archived with the
+v1.0 milestone to `.planning/milestones/v1.0-REQUIREMENTS.md`, where the stale
+`Pending` column is preserved as-is under an explicit correction header naming it
+a bookkeeping defect and pointing to the authoritative sources (the v1.0 audit
+and the per-phase VERIFICATION.md files, which establish 63/63 satisfied).
+
+The table was deliberately NOT hand-corrected — reconstructing 63 rows by hand
+risked replacing "stale" with "wrong" in a permanent archive.
+
+A fresh REQUIREMENTS.md is created by `/gsd:new-milestone`. If the same
+`requirements_updated: false` behavior recurs in the next milestone, that is a
+gsd-sdk issue worth filing rather than a per-project fix.
