@@ -97,12 +97,31 @@ export function BookingCalendar({
         <div className="space-y-6" data-testid="card-booking-calendar">
             <div>
                 <h1 className="mb-4 text-lg font-semibold text-foreground">{BOOKING_COPY.calendarLabel}</h1>
+                {/* Sized and centered via the primitive's own `--cell-size` variable
+                    rather than by editing `components/ui/calendar.tsx` (a generated
+                    shadcn file). Every dimension inside the calendar — day cells, nav
+                    buttons, header height — derives from that one variable, so
+                    overriding it scales the whole grid proportionally with no layout
+                    surgery.
+
+                    `--spacing(7)` (~28px) is the shadcn default and reads small inside
+                    this `max-w-3xl` page. `--spacing(11)` (~44px) also clears the 44px
+                    minimum touch target, which the default did not.
+
+                    Short-viewport guard (03-UAT test 14 / D-20): the bigger grid is
+                    exactly what could reintroduce the Phase 3 clipping bug, so the
+                    scale-up is gated behind `sm:`. Below 640px the calendar keeps the
+                    original compact size, so the worst case for vertical space is
+                    unchanged from what that test verified. `mx-auto` centers the
+                    now-narrower-than-container grid; `w-fit` stops the wrapper from
+                    stretching full width and re-defeating the centering. */}
                 <Calendar
                     mode="single"
                     month={month}
                     onMonthChange={handleMonthChange}
                     selected={selectedDate}
                     onSelect={handleSelect}
+                    className="mx-auto w-fit sm:[--cell-size:--spacing(11)]"
                     disabled={(date) => {
                         const dateKey = formatLocalDateKeyClient(date)
                         if (fullyBookedDates.has(dateKey)) return true
