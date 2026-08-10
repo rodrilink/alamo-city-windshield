@@ -58,3 +58,13 @@ supabase/.branches/
 # copy is kept. `settings.json` IS tracked deliberately: it is the shared
 # project config every contributor should get.
 .claude/settings.local.json
+
+# Added by `vercel link` (it also writes VERCEL_OIDC_TOKEN into .env.local).
+# Broader than the .env rules above, so the negation below is REQUIRED:
+# `.env.example` is deliberately tracked as documentation of the variables a
+# deployment needs, and it holds only placeholders — never real values.
+# Without `!.env.example` this rule is a trap: git does not apply ignore
+# rules to already-tracked files, so it looks harmless until someone removes
+# and re-adds the file, at which point it silently fails to stage.
+.env*
+!.env.example
