@@ -142,10 +142,12 @@ export function EstimateSection({ scrollRef }: EstimateSectionProps) {
 
   return (
     <section className="snap-start snap-always h-dvh relative overflow-hidden flex items-center justify-center">
-      {/* Background photo — different from hero (D-09): close-up of automobile windshield */}
+      {/* Background photo — different from hero (D-09): a white SUV on open desert
+          road. Wide framing with open sky keeps the estimate card legible over the
+          55% overlay. Free Unsplash license. */}
       <Image
-        src="https://images.unsplash.com/photo-1489824904134-891ab64532f1?w=1920&q=80"
-        alt="Close-up of automobile windshield"
+        src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=1920&q=80"
+        alt="White SUV parked on a desert road"
         fill
         className="object-cover"
       />

@@ -52,3 +52,5 @@ supabase/.branches/
 # committed under the real path in 2a17aa7 before this rule was corrected.
 # Keep `.claude/settings.json` and `settings.local.json` tracked.
 .claude/worktrees/
+.claude/settings.json
+.claude/settings.local.json

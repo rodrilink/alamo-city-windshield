@@ -20,10 +20,11 @@ export function HeroSection({ scrollRef }: HeroSectionProps) {
 
   return (
     <section className="snap-start snap-always h-dvh relative overflow-hidden flex items-center justify-center">
-      {/* Background photo — auto glass / windshield repair technician */}
+      {/* Background photo — auto glass technician applying urethane adhesive to a
+          windshield frame during a replacement. Free Unsplash license. */}
       <Image
-        src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=80"
-        alt="Auto glass repair technician working on a windshield"
+        src="https://images.unsplash.com/photo-1651084296894-105edab05b26?w=1920&q=80"
+        alt="Auto glass technician applying adhesive to a vehicle windshield frame during a replacement"
         fill
         className="object-cover"
         priority
