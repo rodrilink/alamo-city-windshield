@@ -13,7 +13,11 @@
       "Bash(grep -vE '^\\\\s*\\(//|/\\\\*|\\\\*\\)' src/lib/pricing.ts)",
       "Bash(grep -vE '^\\\\s*\\(//|/\\\\*|\\\\*\\)' src/lib/supabase/admin.ts)",
       "Bash(npx eslint *)",
-      "Bash(grep -vE '^\\\\s*\\(//|/\\\\*|\\\\*\\)' src/components/ui/segmented-control.tsx)"
+      "Bash(grep -vE '^\\\\s*\\(//|/\\\\*|\\\\*\\)' src/components/ui/segmented-control.tsx)",
+      "Bash(npm run *)",
+      "Bash(echo \"EXIT_CODE=$?\")",
+      "Bash(tail -5 /tmp_build_out.txt)",
+      "Bash(rm -f /tmp_build_out.txt)"
     ]
   }
 }
