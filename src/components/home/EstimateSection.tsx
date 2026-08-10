@@ -161,7 +161,20 @@ export function EstimateSection({ scrollRef }: EstimateSectionProps) {
           pixel-identical to before, since the wrapper never reaches its cap there.
           Kept OUTSIDE the motion.div so the scrollRef IntersectionObserver root's
           geometry relative to the observed element is unchanged. */}
-      <div className="relative z-10 w-full max-h-dvh overflow-y-auto overscroll-contain">
+      {/* `overscroll-auto`, NOT `overscroll-contain`. `overscroll-contain` stops
+          scroll CHAINING to the parent — so once the pointer sat over this div the
+          wheel was captured and never reached the `snap-y snap-mandatory` scroller
+          in `page.tsx`, trapping the user on this section with no way to scroll on.
+          It applied even on desktop, where the card is shorter than the viewport
+          and this div is not scrollable at all: an `overflow-y-auto` element still
+          swallows the event. `overscroll-auto` restores chaining, so the snap
+          scroller receives the wheel once this div is at (or has no) scroll extent.
+          `page.tsx`'s Footer comment names this exact hazard — "no inner scroller
+          for the wheel to capture" — which this section violated.
+
+          Keep `max-h-dvh overflow-y-auto`: that is the 03-10 fix keeping the card
+          reachable on short viewports. Only the overscroll behavior changes. */}
+      <div className="relative z-10 w-full max-h-dvh overflow-y-auto overscroll-auto">
         {/* Centered white card with fade-in + slide-up animation (D-08, D-10) */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
