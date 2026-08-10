@@ -1,7 +1,31 @@
+// The business phone is supplied via `NEXT_PUBLIC_BUSINESS_PHONE` so the real
+// number is not committed to a public repository. Set it in `.env.local`
+// locally and in the Vercel dashboard for deploys.
+//
+// This is NOT a secret: `NEXT_PUBLIC_*` values are inlined into the client
+// bundle at build time, so the number is readable in page source. That is
+// correct and intended -- customers must be able to call. The env var keeps it
+// out of git, nothing more.
+//
+// The fallback is the reserved-fictional 555 placeholder, deliberately NOT the
+// real number: if the env var is ever missing, an obviously fake number is a
+// visible signal that configuration is broken, whereas a blank would silently
+// strip the phone from the header, footer and every "call us" error message.
+const BUSINESS_PHONE = process.env.NEXT_PUBLIC_BUSINESS_PHONE ?? '(210) 555-0100'
+
+/**
+ * Derives the `tel:` href from the display number so the two can never drift
+ * apart. Strips every non-digit, then prefixes the US country code.
+ */
+function toPhoneHref(displayPhone: string): string {
+  const digits = displayPhone.replace(/\D/g, '')
+  return `tel:+1${digits}`
+}
+
 export const BUSINESS = {
   name: 'Alamo City Windshield Repair',
-  phone: '(210) 555-0100',
-  phoneHref: 'tel:+12105550100',
+  phone: BUSINESS_PHONE,
+  phoneHref: toPhoneHref(BUSINESS_PHONE),
   location: 'San Antonio, TX',
   serviceArea: 'Mobile service available across San Antonio',
   hours: [
