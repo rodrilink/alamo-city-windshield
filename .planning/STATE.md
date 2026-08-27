@@ -5,7 +5,7 @@ milestone_name: milestone
 status: Awaiting next milestone
 stopped_at: Phase 6 context gathered
 last_updated: "2026-08-10T02:46:24.166Z"
-last_activity: 2026-08-10 — Milestone v1.0 completed and archived
+last_activity: 2026-08-26 — Quick task: admin sidebar collapsed on mobile
 progress:
   total_phases: 6
   completed_phases: 5
@@ -122,6 +122,7 @@ None yet.
 | 260809-f02 | Swap home background images: hero → windshield technician, estimate → SUV | 2026-08-09 | 8465a6c | — (fast) |
 | 260809-f03 | Fix snap-scroll lock on estimate section (overscroll-contain captured the wheel) | 2026-08-09 | 862f4c4 | — (fast) |
 | 260809-f04 | Enlarge and center the booking calendar (sm-gated --cell-size override) | 2026-08-09 | 7e14151 | — (fast) |
+| 20260826 | Collapse the /admin sidebar behind a hamburger drawer on mobile | 2026-08-26 | 0da1d25 | [20260826-admin-mobile-sidebar](./quick/20260826-admin-mobile-sidebar/) |
 
 ## Session Continuity
 
