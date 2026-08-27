@@ -6,10 +6,11 @@ interface VisitorsChartProps {
 }
 
 /**
- * ADMIN-02. Source is `analytics_events`, so per D-01 this reads a
- * zero-filled window until Phase 6 wires the writes -- the empty state,
- * not the bar chart, is what renders today. Renders with
- * data-testid="chart-visitors" (via `ActivityChart`'s `testId` prop).
+ * ADMIN-02. Source is `analytics_events`, which Phase 6 now writes to, so
+ * this renders the bar chart whenever the window has activity. Per D-01 a
+ * genuinely quiet window still falls back to the empty state rather than a
+ * broken axis. Renders with data-testid="chart-visitors" (via
+ * `ActivityChart`'s `testId` prop).
  */
 export function VisitorsChart({ series }: VisitorsChartProps) {
     return <ActivityChart title="Visitors" seriesKey="visitors" seriesLabel="Visitors" result={series} testId="chart-visitors" />

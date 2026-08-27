@@ -161,9 +161,10 @@ export const ADMIN_COPY = {
   logoutLabel: 'Log out',
   // D-01: shown on a chart when the underlying analytics_events table has
   // zero rows for the window -- an honest empty state, not a broken axis.
-  dashboardEmptyStateHint: 'No data yet — event tracking arrives in Phase 6.',
-  // D-02: shorter subtitle for the two analytics_events-sourced summary cards.
-  trackingStartsHint: 'Tracking starts in Phase 6',
+  // Must describe the window being empty, NOT a pending feature: tracking is
+  // live and runtime-verified, so any "coming soon" wording here would be a
+  // lie that hides a genuinely quiet period (or a broken writer).
+  dashboardEmptyStateHint: 'No activity recorded in this period.',
   // Shown when a dashboard read returns ok: false. Must read differently
   // from dashboardEmptyStateHint -- a failed query must never be
   // indistinguishable from a legitimate zero-row result (RESEARCH.md Pitfall 3).

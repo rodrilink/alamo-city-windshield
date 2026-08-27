@@ -11,22 +11,20 @@ interface SummaryCardDefinition {
     testId: string
     label: string
     value: number | null
-    // D-02: ONLY the two analytics_events-sourced cards (visitors, vinSearches)
-    // carry this hint. Do NOT add it to contacts/bookings -- those are real
-    // counts today, and the asymmetry is the decision, not an inconsistency
-    // to "fix" by making all four cards uniform.
-    showTrackingHint: boolean
 }
 
 /**
  * ADMIN-05: the four-card summary grid. A Server Component -- it renders
  * static markup from props with no interactivity of its own.
  *
- * Per D-02, `visitors` and `vinSearches` are `analytics_events`-sourced and
- * read `0` until Phase 6 wires the writes, so they carry
- * `ADMIN_COPY.trackingStartsHint`. `contacts` and `bookings` are real-table
- * counts today and must NEVER carry that hint -- doing so would suggest a
- * real number is somehow provisional.
+ * All four cards render a plain count. `visitors` and `vinSearches` are
+ * `analytics_events`-sourced; `contacts` and `bookings` are real-table counts.
+ *
+ * Supersedes D-02: those two cards used to carry a "Tracking starts in Phase 6"
+ * subtitle because the analytics writes did not exist yet. Phase 6 shipped and
+ * was runtime-verified, so the hint was unconditional and actively wrong --
+ * it rendered underneath real non-zero counts, implying a live number was
+ * somehow provisional.
  *
  * When `totals.ok` is `false`, every card renders `ADMIN_COPY.queryFailedMessage`
  * in place of its number rather than a `0` -- a `0` there would be
@@ -38,25 +36,21 @@ export function SummaryCards({ totals }: SummaryCardsProps) {
             testId: 'card-total-visitors',
             label: 'Visitors',
             value: totals.ok ? totals.data.visitors : null,
-            showTrackingHint: true,
         },
         {
             testId: 'card-total-contacts',
             label: 'Contacts',
             value: totals.ok ? totals.data.contacts : null,
-            showTrackingHint: false,
         },
         {
             testId: 'card-total-vin-searches',
             label: 'VIN searches',
             value: totals.ok ? totals.data.vinSearches : null,
-            showTrackingHint: true,
         },
         {
             testId: 'card-total-bookings',
             label: 'Bookings',
             value: totals.ok ? totals.data.bookings : null,
-            showTrackingHint: false,
         },
     ]
 
@@ -69,10 +63,7 @@ export function SummaryCards({ totals }: SummaryCardsProps) {
                     </CardHeader>
                     <CardContent>
                         {totals.ok ? (
-                            <>
-                                <p className="text-3xl font-semibold text-primary tabular-nums">{card.value?.toLocaleString()}</p>
-                                {card.showTrackingHint && <p className="mt-1 text-xs text-muted-foreground">{ADMIN_COPY.trackingStartsHint}</p>}
-                            </>
+                            <p className="text-3xl font-semibold text-primary tabular-nums">{card.value?.toLocaleString()}</p>
                         ) : (
                             <p className="text-sm text-muted-foreground" role="alert">
                                 {ADMIN_COPY.queryFailedMessage}

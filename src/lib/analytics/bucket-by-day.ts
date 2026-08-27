@@ -47,8 +47,7 @@ export const ANALYTICS_BUCKET_GRANULARITY = 'day' as const
  * trailing window, keyed by the `America/Chicago` business day (CR-02) for
  * both the counts and the axis. Every day in the window appears in the
  * output, including zero-count days -- this is what keeps the chart's x-axis
- * continuous even though, per D-01, every day is currently a zero day for the
- * two `analytics_events`-sourced charts (event tracking arrives in Phase 6).
+ * continuous across quiet days rather than collapsing the gap.
  *
  * @param createdAtTimestamps - ISO-8601 `created_at` strings from a Supabase row set, already filtered to one source/event_type.
  * @param now - The reference "today" instant, passed explicitly so this function needs no clock mock in tests.
