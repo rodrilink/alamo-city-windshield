@@ -44,6 +44,17 @@ export function AdminSidebarNav({ adminEmail, onNavigate }: AdminSidebarNavProps
         >
           {ADMIN_COPY.navUsersLabel}
         </Link>
+        {/* Last in the group: leaving the admin tool is secondary to the
+            admin destinations above. Targets `/` -- the public home page --
+            since this app has no `/home` route. */}
+        <Link
+          href="/"
+          onClick={onNavigate}
+          className="rounded-lg px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted hover:text-primary"
+          data-testid="link-admin-home"
+        >
+          {ADMIN_COPY.navHomeLabel}
+        </Link>
       </nav>
 
       <div className="mt-auto flex flex-col gap-3">

@@ -147,6 +147,10 @@ export const ADMIN_COPY = {
   // every other visible string here, even though they read fine inline.
   navDashboardLabel: 'Dashboard',
   navUsersLabel: 'Users',
+  // Points at the public site root `/`, not a `/home` route -- there is no
+  // such route. `NAV_LINKS` above already labels `/` as "Home"; this keeps the
+  // two navs calling the same destination by the same name.
+  navHomeLabel: 'Home',
   // V2 Authentication: identical whether the email exists or not -- no
   // account enumeration. Never interpolate the submitted email into this.
   loginGenericError: 'Incorrect email or password. Please try again.',
