@@ -5,7 +5,7 @@ milestone_name: milestone
 status: Awaiting next milestone
 stopped_at: Phase 6 context gathered
 last_updated: "2026-08-10T02:46:24.166Z"
-last_activity: 2026-08-26 — Quick task: admin sidebar collapsed on mobile
+last_activity: 2026-08-26 — Quick task: Home link added to admin nav
 progress:
   total_phases: 6
   completed_phases: 5
@@ -123,6 +123,7 @@ None yet.
 | 260809-f03 | Fix snap-scroll lock on estimate section (overscroll-contain captured the wheel) | 2026-08-09 | 862f4c4 | — (fast) |
 | 260809-f04 | Enlarge and center the booking calendar (sm-gated --cell-size override) | 2026-08-09 | 7e14151 | — (fast) |
 | 20260826 | Collapse the /admin sidebar behind a hamburger drawer on mobile | 2026-08-26 | 0da1d25 | [20260826-admin-mobile-sidebar](./quick/20260826-admin-mobile-sidebar/) |
+| 20260826 | Add a Home link to the admin nav (targets /, not a /home route) | 2026-08-26 | b9100f4 | [20260826-admin-home-link](./quick/20260826-admin-home-link/) |
 
 ## Session Continuity
 
