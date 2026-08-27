@@ -5,7 +5,7 @@ milestone_name: milestone
 status: Awaiting next milestone
 stopped_at: Phase 6 context gathered
 last_updated: "2026-08-10T02:46:24.166Z"
-last_activity: 2026-08-26 — Quick task: package renamed to alamo-windshield-landing-page
+last_activity: 2026-08-26 — Quick task: stale Phase 6 dashboard copy removed
 progress:
   total_phases: 6
   completed_phases: 5
@@ -126,6 +126,7 @@ None yet.
 | 20260826 | Add a Home link to the admin nav (targets /, not a /home route) | 2026-08-26 | b9100f4 | [20260826-admin-home-link](./quick/20260826-admin-home-link/) |
 | 20260826 | Rename 32 component files to kebab-case, rewrite 44 imports | 2026-08-26 | 37c3fcc | [20260826-kebab-case-filenames](./quick/20260826-kebab-case-filenames/) |
 | 20260826 | Rename npm package nextjs-scaffold -> alamo-windshield-landing-page | 2026-08-26 | d5ee18e | [20260826-rename-package](./quick/20260826-rename-package/) |
+| 20260826 | Remove stale "Phase 6" tracking copy from the admin dashboard | 2026-08-26 | 43d0feb | [20260826-stale-phase6-copy](./quick/20260826-stale-phase6-copy/) |
 
 ## Session Continuity
 
