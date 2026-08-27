@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { AdminSidebar } from '@/components/layout/AdminSidebar'
+import { AdminMobileNav } from '@/components/layout/AdminMobileNav'
 
 // D-14: this is the FIRST real (non-passthrough) layout in this repo --
 // `(public)/layout.tsx` is a documented bare passthrough with no chrome of
@@ -37,10 +38,25 @@ export default async function DashboardLayout({
   // Only user.email is passed down -- never the whole user object, never
   // user.id, never a token -- so no identifier beyond the display email is
   // serialized into the Client Component's props (T-05-05-02).
+  //
+  // Responsive shell: at `md`+ the persistent 256px rail sits beside the
+  // content. Below `md` that rail is hidden (`AdminSidebar` is `hidden md:flex`)
+  // because it would consume most of a phone viewport, and the same navigation
+  // is reached through `AdminMobileNav`'s hamburger-triggered drawer in the
+  // top bar instead. `AdminMobileNav` is the only Client Component here -- this
+  // layout stays a Server Component so the `getUser()` revalidation above is
+  // unaffected.
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen flex-col md:flex-row">
       <AdminSidebar adminEmail={user?.email ?? null} />
-      <main className="min-w-0 flex-1 overflow-y-auto p-6">{children}</main>
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="flex items-center gap-2 border-b border-border bg-background px-4 py-2 md:hidden">
+          <AdminMobileNav adminEmail={user?.email ?? null} />
+        </header>
+
+        <main className="min-w-0 flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
+      </div>
     </div>
   )
 }
