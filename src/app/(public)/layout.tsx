@@ -1,4 +1,4 @@
-import { PageViewTracker } from '@/components/analytics/PageViewTracker'
+import { PageViewTracker } from '@/components/analytics/page-view-tracker'
 
 export default function PublicLayout({
   children,

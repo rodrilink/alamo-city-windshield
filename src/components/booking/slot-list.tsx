@@ -20,7 +20,7 @@
 import { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
-import { BookingForm } from '@/components/booking/BookingForm'
+import { BookingForm } from '@/components/booking/booking-form'
 import { formatLocalDateKeyClient } from '@/components/booking/date-key'
 import { refreshDayAvailability } from '@/lib/booking/availability-actions'
 import { isDayFullyBooked } from '@/lib/booking/day-fully-booked'

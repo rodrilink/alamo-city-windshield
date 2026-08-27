@@ -1,7 +1,7 @@
-import { TopNav } from '@/components/layout/TopNav'
-import { Footer } from '@/components/layout/Footer'
-import { ContactForm } from '@/components/contact/ContactForm'
-import { ContactVinSearch } from '@/components/contact/ContactVinSearch'
+import { TopNav } from '@/components/layout/top-nav'
+import { Footer } from '@/components/layout/footer'
+import { ContactForm } from '@/components/contact/contact-form'
+import { ContactVinSearch } from '@/components/contact/contact-vin-search'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 // D-20: normal-flow chrome, no snap-scroll, no overlay nav -- identical

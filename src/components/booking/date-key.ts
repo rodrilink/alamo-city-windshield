@@ -18,7 +18,7 @@
 // local getters (`getFullYear`/`getMonth`/`getDate`), matching
 // `formatLocalDateKey`'s convention exactly.
 
-import type { ServerTodayParts } from '@/components/booking/BookingCalendar'
+import type { ServerTodayParts } from '@/components/booking/booking-calendar'
 
 /**
  * Formats a `Date` object into a `'yyyy-MM-dd'` key using its local calendar

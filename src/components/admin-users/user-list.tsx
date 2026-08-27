@@ -19,7 +19,7 @@
 // deferring entirely to the server-side guards.
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { RemoveUserDialog } from '@/components/admin-users/RemoveUserDialog'
+import { RemoveUserDialog } from '@/components/admin-users/remove-user-dialog'
 import { ADMIN_COPY } from '@/lib/constants'
 import type { AdminListItem } from '@/lib/admin-users/admin-users-actions'
 

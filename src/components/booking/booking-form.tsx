@@ -37,7 +37,7 @@ import { Loader2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form'
-import { BookingConfirmation } from '@/components/booking/BookingConfirmation'
+import { BookingConfirmation } from '@/components/booking/booking-confirmation'
 import { createBooking } from '@/lib/booking/booking-actions'
 import { bookingSchema } from '@/lib/booking/booking-schema'
 import { BOOKING_COPY, BUSINESS } from '@/lib/constants'

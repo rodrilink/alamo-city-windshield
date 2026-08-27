@@ -1,6 +1,6 @@
 import { listAdmins } from '@/lib/admin-users/admin-users-actions'
-import { UserList } from '@/components/admin-users/UserList'
-import { AddUserForm } from '@/components/admin-users/AddUserForm'
+import { UserList } from '@/components/admin-users/user-list'
+import { AddUserForm } from '@/components/admin-users/add-user-form'
 import { ADMIN_COPY } from '@/lib/constants'
 
 // USER-01/USER-02/USER-03/D-13: /admin/users -- the dedicated route for the

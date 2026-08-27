@@ -1,11 +1,11 @@
 'use client'
 
 import { useRef } from 'react'
-import { TopNav } from '@/components/layout/TopNav'
-import { Footer } from '@/components/layout/Footer'
-import { HeroSection } from '@/components/home/HeroSection'
-import { EstimateSection } from '@/components/home/EstimateSection'
-import { ServicesSection } from '@/components/home/ServicesSection'
+import { TopNav } from '@/components/layout/top-nav'
+import { Footer } from '@/components/layout/footer'
+import { HeroSection } from '@/components/home/hero-section'
+import { EstimateSection } from '@/components/home/estimate-section'
+import { ServicesSection } from '@/components/home/services-section'
 
 export default function HomePage() {
   const scrollRef = useRef<HTMLDivElement>(null)

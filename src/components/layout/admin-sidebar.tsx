@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 import { ADMIN_COPY } from '@/lib/constants'
 import { Separator } from '@/components/ui/separator'
-import { LogoutButton } from '@/components/auth/LogoutButton'
+import { LogoutButton } from '@/components/auth/logout-button'
 
 interface AdminSidebarNavProps {
   adminEmail: string | null

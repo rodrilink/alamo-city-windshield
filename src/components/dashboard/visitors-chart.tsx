@@ -1,4 +1,4 @@
-import { ActivityChart } from '@/components/dashboard/ActivityChart'
+import { ActivityChart } from '@/components/dashboard/activity-chart'
 import type { DailyBucket, DashboardReadResult } from '@/types/admin'
 
 interface VisitorsChartProps {

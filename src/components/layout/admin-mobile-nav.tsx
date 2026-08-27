@@ -5,7 +5,7 @@ import { Menu } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { AdminSidebarNav } from '@/components/layout/AdminSidebar'
+import { AdminSidebarNav } from '@/components/layout/admin-sidebar'
 
 interface AdminMobileNavProps {
   adminEmail: string | null

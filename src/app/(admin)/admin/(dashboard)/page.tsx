@@ -1,9 +1,9 @@
-import { SummaryCards } from '@/components/dashboard/SummaryCards'
-import { VisitorsChart } from '@/components/dashboard/VisitorsChart'
-import { ContactsChart } from '@/components/dashboard/ContactsChart'
-import { VinSearchChart } from '@/components/dashboard/VinSearchChart'
-import { RecentContactsTable } from '@/components/dashboard/RecentContactsTable'
-import { UpcomingAppointmentsTable } from '@/components/dashboard/UpcomingAppointmentsTable'
+import { SummaryCards } from '@/components/dashboard/summary-cards'
+import { VisitorsChart } from '@/components/dashboard/visitors-chart'
+import { ContactsChart } from '@/components/dashboard/contacts-chart'
+import { VinSearchChart } from '@/components/dashboard/vin-search-chart'
+import { RecentContactsTable } from '@/components/dashboard/recent-contacts-table'
+import { UpcomingAppointmentsTable } from '@/components/dashboard/upcoming-appointments-table'
 import {
     getSummaryTotals,
     getVisitorSeries,

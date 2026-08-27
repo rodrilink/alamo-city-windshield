@@ -12,7 +12,7 @@
 import { useState, useTransition } from 'react'
 
 import { Calendar } from '@/components/ui/calendar'
-import { SlotList } from '@/components/booking/SlotList'
+import { SlotList } from '@/components/booking/slot-list'
 import { formatLocalDateKeyClient, isDateKeyBeforeServerToday } from '@/components/booking/date-key'
 import { BOOKING_COPY } from '@/lib/constants'
 import { refreshDayAvailability, refreshMonthAvailability } from '@/lib/booking/availability-actions'

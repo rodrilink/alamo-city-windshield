@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
-import { AdminSidebar } from '@/components/layout/AdminSidebar'
-import { AdminMobileNav } from '@/components/layout/AdminMobileNav'
+import { AdminSidebar } from '@/components/layout/admin-sidebar'
+import { AdminMobileNav } from '@/components/layout/admin-mobile-nav'
 
 // D-14: this is the FIRST real (non-passthrough) layout in this repo --
 // `(public)/layout.tsx` is a documented bare passthrough with no chrome of

@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Menu, Phone } from 'lucide-react'
-import { Logo } from '@/components/brand/Logo'
+import { Logo } from '@/components/brand/logo'
 import { BUSINESS, NAV_LINKS } from '@/lib/constants'
 import { Button } from '@/components/ui/button'
 import {

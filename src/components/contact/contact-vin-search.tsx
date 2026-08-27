@@ -14,8 +14,8 @@
 import { useState } from 'react'
 import { Info, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { EstimateResult } from '@/components/home/EstimateResult'
-import { ManualEntryForm } from '@/components/home/ManualEntryForm'
+import { EstimateResult } from '@/components/home/estimate-result'
+import { ManualEntryForm } from '@/components/home/manual-entry-form'
 import { ESTIMATE_COPY } from '@/lib/constants'
 import { VIN_REGEX, type EstimateMatrix, type GlassType, type SizeBucket, type VinLookupResponse } from '@/types/vehicle'
 

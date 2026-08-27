@@ -1,8 +1,8 @@
-import { MissionSection } from '@/components/about/MissionSection'
-import { VisionSection } from '@/components/about/VisionSection'
-import { TrustSection } from '@/components/about/TrustSection'
-import { TopNav } from '@/components/layout/TopNav'
-import { Footer } from '@/components/layout/Footer'
+import { MissionSection } from '@/components/about/mission-section'
+import { VisionSection } from '@/components/about/vision-section'
+import { TrustSection } from '@/components/about/trust-section'
+import { TopNav } from '@/components/layout/top-nav'
+import { Footer } from '@/components/layout/footer'
 
 export default function AboutPage() {
   return (

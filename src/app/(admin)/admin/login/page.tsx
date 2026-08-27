@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { LoginForm } from '@/components/auth/LoginForm'
+import { LoginForm } from '@/components/auth/login-form'
 
 // D-14: this route sits OUTSIDE the (dashboard) route group's authenticated
 // shell -- no sidebar, no logout control, no admin email. A logged-out
